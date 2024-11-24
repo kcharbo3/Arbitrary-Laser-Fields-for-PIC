@@ -1,0 +1,54 @@
+import numpy as np
+
+RAYLEIGH_SOMMERFELD = "RS"
+FRESNEL = "FRESNEL"
+
+# POLARIZATION TYPES
+# TODO: Add option for linear polarization based off an angle
+LINEAR_Y = "LINEAR_Y"
+LINEAR_Z = "LINEAR_Z"
+RADIAL = "RADIAL"
+AZIMUTHAL = "AZIMUTHAL"
+CIRCULAR_L = "CIRCULAR_L"
+CIRCULAR_R = "CIRCULAR_R"
+
+# BEAM SPATIAL SHAPE TYPES
+LG = "LG"
+LG_2D = "LG_2D"
+GAUSSIAN = "GAUSSIAN"
+GAUSSIAN_2D = "GAUSSIAN_2D"
+RADIAL_CHIRP = "RADIAL_CHIRP"
+CHEVRON_2D = "CHEVRON_2D"
+LINEAR_CHIRP_Y = "LINEAR_CHIRP_Y"
+LINEAR_CHIRP_Z = "LINEAR_CHIRP_Z"
+LINEAR_2D = "LINEAR_2D"
+PETAL_8_RADIAL = "PETAL_8_RADIAL"
+PETAL_N_RADIAL = "PETAL_N_RADIAL"
+PETAL_8_AZIMUTHAL = "PETAL_8_AZIMUTHAL"
+
+# BEAM TEMPORAL SHAPE TYPES
+GAUSSIAN_T = "GAUSSIAN_T"
+
+C_SPEED = 2.99792458e8
+C_UM_FS = C_SPEED * 1e6 * 1e-15
+
+# GRATING CONSTANTS BASED ON WHAT'S IN USE TODAY
+ANGLE_OF_INCIDENCE = np.deg2rad(52.8)
+GROOVE_PERIOD = 1 / 1480e-3  # 1480 Grooves/mm
+DIFFRACTION_ORDER = 1
+
+# Input Field Files
+INPUT_EW_FILE_Y = "input_Ew_mem_y.dat"
+INPUT_ET_FILE_Y = "input_Et_mem_y.dat"
+INPUT_EW_FILE_Z = "input_Ew_mem_z.dat"
+INPUT_ET_FILE_Z = "input_Et_mem_z.dat"
+
+# Output Field Files
+OUTPUT_EW_FILE_Y = "output_Ew_mem_y.dat"
+OUTPUT_ET_FILE_Y = "output_Et_mem_y.dat"
+OUTPUT_EW_FILE_Z = "output_Ew_mem_z.dat"
+OUTPUT_ET_FILE_Z = "output_Et_mem_z.dat"
+
+# Output Sim Field Files
+OUTPUT_ET_SIM_FILE_Y = "output_Et_sim_mem_y.dat"
+OUTPUT_ET_SIM_FILE_Z = "output_Et_sim_mem_z.dat"
