@@ -20,16 +20,36 @@ class ShapeParameters:
 # BEAM SPATIAL FUNCTIONS
 def lg_shape(y, z, omega, omega0, shape_params):
     R = np.sqrt(y ** 2 + z ** 2)
+
     return np.array(
         R ** shape_params.l
-        * np.exp((-(R + (omega - omega0)) ** 2 / shape_params.waist_in ** 2)
+        * np.exp((-(R ** 2) / shape_params.waist_in ** 2)
                  + 1j * shape_params.l * np.arctan2(y, z)), dtype=np.complex64
     )
 
 def lg_shape_2d(y, omega, omega0, shape_params):
     return np.array(
         np.abs(y) ** shape_params.l
-        * np.exp((-(np.abs(y) + (omega - omega0)) ** 2 / shape_params.waist_in ** 2)
+        * np.exp((-(np.abs(y)) ** 2 / shape_params.waist_in ** 2)
+                 + 1j * shape_params.l * np.arctan2(y, 0)), dtype=np.complex64
+    )
+
+def lg_shape_radial_chirp(y, z, omega, omega0, shape_params):
+    R = np.sqrt(y ** 2 + z ** 2)
+    chirp_val = get_chirp_value(omega, omega0, shape_params)
+
+    return np.array(
+        R ** shape_params.l
+        * np.exp((-(R - chirp_val) ** 2 / shape_params.waist_in ** 2)
+                 + 1j * shape_params.l * np.arctan2(y, z)), dtype=np.complex64
+    )
+
+def lg_shape_radial_chirp_2d(y, omega, omega0, shape_params):
+    chirp_val = get_chirp_value(omega, omega0, shape_params)
+
+    return np.array(
+        np.abs(y) ** shape_params.l
+        * np.exp((-(np.abs(y) - chirp_val) ** 2 / shape_params.waist_in ** 2)
                  + 1j * shape_params.l * np.arctan2(y, 0)), dtype=np.complex64
     )
 
@@ -159,7 +179,8 @@ def _get_grating_chirp(separation, groove_period, omega, omega0, aoi, m):
 
 
 SPATIAL_SHAPE_MAPPINGS = {
-    constants.LG: lg_shape, constants.LG_2D: lg_shape_2d, constants.GAUSSIAN: gaussian_shape,
+    constants.LG: lg_shape, constants.LG_2D: lg_shape_2d, constants.LG_RADIAL_CHIRP: lg_shape_radial_chirp,
+    constants.LG_RADIAL_CHIRP_2D: lg_shape_radial_chirp_2d, constants.GAUSSIAN: gaussian_shape,
     constants.GAUSSIAN_2D: gaussian_shape_2d, constants.RADIAL_CHIRP: radial_chirp,
     constants.CHEVRON_2D: chevron_chirp_2d, constants.LINEAR_CHIRP_Y: linear_chirp_y,
     constants.LINEAR_CHIRP_Z: linear_chirp_z, constants.LINEAR_2D: linear_chirp_2d,
