@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # TODO: Clean up plotting... a lot of duplicate code here
 # TODO: Option to plot intensity (Iy, Iz, or Itot)
 
-def plot_Et_output_transverse(input_field: laser_input.InputField, time, is_Ey=True, ybound=0, zbound=0):
+def plot_Et_output_transverse(input_field: laser_input.InputField, time, is_Ey=True, ybound=0, zbound=0, **kwargs):
     Et_vals = np.flip(get_Et_transverse(input_field, time, is_Ey, ybound, zbound), axis=0)
 
     if ybound == 0:
@@ -15,7 +15,7 @@ def plot_Et_output_transverse(input_field: laser_input.InputField, time, is_Ey=T
     if zbound == 0:
         zbound = input_field.prop.z_vals_output.max()
 
-    plt.imshow(Et_vals.real, aspect='auto', extent=[-zbound, zbound, -ybound, ybound])
+    plt.imshow(Et_vals.real, aspect='auto', extent=[-zbound, zbound, -ybound, ybound], **kwargs)
     plt.ylabel("Y Axis [um]")
     plt.xlabel("Z Axis [um]")
     E_type = "Ey"
@@ -24,7 +24,7 @@ def plot_Et_output_transverse(input_field: laser_input.InputField, time, is_Ey=T
     plt.title("Output " + E_type + " Field Cross Section at Time: " + f"{time:.2f}" + " fs")
 
 
-def plot_Et_input_transverse(input_field: laser_input.InputField, time, is_Ey=True, ybound=0, zbound=0):
+def plot_Et_input_transverse(input_field: laser_input.InputField, time, is_Ey=True, ybound=0, zbound=0, **kwargs):
     Et_vals = np.flip(get_Et_transverse(input_field, time, is_Ey, ybound, zbound, False), axis=0)
 
     if ybound == 0:
@@ -32,7 +32,7 @@ def plot_Et_input_transverse(input_field: laser_input.InputField, time, is_Ey=Tr
     if zbound == 0:
         zbound = input_field.prop.z_vals_input.max()
 
-    plt.imshow(Et_vals.real, aspect='auto', extent=[-zbound, zbound, -ybound, ybound])
+    plt.imshow(Et_vals.real, aspect='auto', extent=[-zbound, zbound, -ybound, ybound], **kwargs)
     plt.ylabel("Y Axis [um]")
     plt.xlabel("Z Axis [um]")
     E_type = "Ey"
@@ -41,7 +41,7 @@ def plot_Et_input_transverse(input_field: laser_input.InputField, time, is_Ey=Tr
     plt.title("Input " + E_type + " Field Cross Section at Time: " + f"{time:.2f}" + " fs")
 
 
-def plot_Ew_output_transverse(input_field: laser_input.InputField, w, is_Ey=True, ybound=0, zbound=0):
+def plot_Ew_output_transverse(input_field: laser_input.InputField, w, is_Ey=True, ybound=0, zbound=0, **kwargs):
     Ew_vals = np.flip(get_Ew_transverse(input_field, w, is_Ey, ybound, zbound), axis=0)
 
     if ybound == 0:
@@ -49,7 +49,7 @@ def plot_Ew_output_transverse(input_field: laser_input.InputField, w, is_Ey=True
     if zbound == 0:
         zbound = input_field.prop.z_vals_output.max()
 
-    plt.imshow(Ew_vals.real, aspect='auto', extent=[-zbound, zbound, -ybound, ybound])
+    plt.imshow(Ew_vals.real, aspect='auto', extent=[-zbound, zbound, -ybound, ybound], **kwargs)
     plt.ylabel("Y Axis [um]")
     plt.xlabel("Z Axis [um]")
     E_type = "Ey"
@@ -58,7 +58,7 @@ def plot_Ew_output_transverse(input_field: laser_input.InputField, w, is_Ey=True
     plt.title("Output " + E_type + " Field Cross Section at Omega: " + f"{w:.2f}" + " rad*PHz")
 
 
-def plot_Ew_input_transverse(input_field: laser_input.InputField, w, is_Ey=True, ybound=0, zbound=0):
+def plot_Ew_input_transverse(input_field: laser_input.InputField, w, is_Ey=True, ybound=0, zbound=0, **kwargs):
     Ew_vals = np.flip(get_Ew_transverse(input_field, w, is_Ey, ybound, zbound, False), axis=0)
 
     if ybound == 0:
@@ -66,7 +66,7 @@ def plot_Ew_input_transverse(input_field: laser_input.InputField, w, is_Ey=True,
     if zbound == 0:
         zbound = input_field.prop.z_vals_input.max()
 
-    plt.imshow(Ew_vals.real, aspect='auto', extent=[-zbound, zbound, -ybound, ybound])
+    plt.imshow(Ew_vals.real, aspect='auto', extent=[-zbound, zbound, -ybound, ybound], **kwargs)
     plt.ylabel("Y Axis [um]")
     plt.xlabel("Z Axis [um]")
     E_type = "Ey"
@@ -75,7 +75,7 @@ def plot_Ew_input_transverse(input_field: laser_input.InputField, w, is_Ey=True,
     plt.title("Input " + E_type + " Field Cross Section at Omega: " + f"{w:.2f}" + " rad*PHz")
 
 
-def plot_Et_output_YT(input_field: laser_input.InputField, z_val, is_Ey=True, ybound=0, tbound=0):
+def plot_Et_output_YT(input_field: laser_input.InputField, z_val, is_Ey=True, ybound=0, tbound=0, **kwargs):
     Et_vals = np.flip(get_Et_YT(input_field, z_val, is_Ey, ybound, tbound).T, axis=0)
 
     if ybound == 0:
@@ -83,7 +83,7 @@ def plot_Et_output_YT(input_field: laser_input.InputField, z_val, is_Ey=True, yb
     if tbound == 0:
         tbound = input_field.prop.times.max()
 
-    plt.imshow(Et_vals.real, aspect='auto', extent=[tbound, -tbound, -ybound, ybound])
+    plt.imshow(Et_vals.real, aspect='auto', extent=[tbound, -tbound, -ybound, ybound], **kwargs)
     plt.ylabel("Y Axis [um]")
     plt.xlabel("Time Axis [fs]")
     E_type = "Ey"
@@ -91,7 +91,7 @@ def plot_Et_output_YT(input_field: laser_input.InputField, z_val, is_Ey=True, yb
         E_type = "Ez"
     plt.title("Output " + E_type + " Field Cross Section at Z: " + f"{z_val:.2f}" + " um")
 
-def plot_Ew_output_YW(input_field: laser_input.InputField, z_val, is_Ey=True, ybound=0, wbound=0):
+def plot_Ew_output_YW(input_field: laser_input.InputField, z_val, is_Ey=True, ybound=0, wbound=0, **kwargs):
     Ew_vals = np.flip(get_Ew_YW(input_field, z_val, is_Ey, ybound, wbound).T, axis=0)
 
     if ybound == 0:
@@ -99,7 +99,7 @@ def plot_Ew_output_YW(input_field: laser_input.InputField, z_val, is_Ey=True, yb
     if wbound == 0:
         wbound = input_field.prop.omegas.max()
 
-    plt.imshow(Ew_vals.real, aspect='auto', extent=[-wbound, wbound, -ybound, ybound])
+    plt.imshow(Ew_vals.real, aspect='auto', extent=[-wbound, wbound, -ybound, ybound], **kwargs)
     plt.ylabel("Y Axis [um]")
     plt.xlabel("Frequency Axis [rad/PHz]")
     E_type = "Ey"
@@ -107,7 +107,7 @@ def plot_Ew_output_YW(input_field: laser_input.InputField, z_val, is_Ey=True, yb
         E_type = "Ez"
     plt.title("Output " + E_type + " Field Cross Section at Z: " + f"{z_val:.2f}" + " um")
 
-def plot_Ew_input_YW(input_field: laser_input.InputField, z_val, is_Ey=True, ybound=0, wbound=0):
+def plot_Ew_input_YW(input_field: laser_input.InputField, z_val, is_Ey=True, ybound=0, wbound=0, **kwargs):
     Ew_vals = np.flip(get_Ew_YW(input_field, z_val, is_Ey, ybound, wbound, False).T, axis=0)
 
     if ybound == 0:
@@ -115,7 +115,7 @@ def plot_Ew_input_YW(input_field: laser_input.InputField, z_val, is_Ey=True, ybo
     if wbound == 0:
         wbound = input_field.prop.omegas.max()
 
-    plt.imshow(Ew_vals.real, aspect='auto', extent=[-wbound, wbound, -ybound, ybound])
+    plt.imshow(Ew_vals.real, aspect='auto', extent=[-wbound, wbound, -ybound, ybound], **kwargs)
     plt.ylabel("Y Axis [um]")
     plt.xlabel("Frequency Axis [rad/PHz]")
     E_type = "Ey"
@@ -123,7 +123,7 @@ def plot_Ew_input_YW(input_field: laser_input.InputField, z_val, is_Ey=True, ybo
         E_type = "Ez"
     plt.title("Input " + E_type + " Field Cross Section at Z: " + f"{z_val:.2f}" + " um")
 
-def plot_Et_output_ZT(input_field: laser_input.InputField, y_val, is_Ey=True, zbound=0, tbound=0):
+def plot_Et_output_ZT(input_field: laser_input.InputField, y_val, is_Ey=True, zbound=0, tbound=0, **kwargs):
     Et_vals = np.flip(get_Et_ZT(input_field, y_val, is_Ey, zbound, tbound).T, axis=0)
 
     if zbound == 0:
@@ -131,7 +131,7 @@ def plot_Et_output_ZT(input_field: laser_input.InputField, y_val, is_Ey=True, zb
     if tbound == 0:
         tbound = input_field.prop.times.max()
 
-    plt.imshow(Et_vals.real, aspect='auto', extent=[tbound, -tbound, -zbound, zbound])
+    plt.imshow(Et_vals.real, aspect='auto', extent=[tbound, -tbound, -zbound, zbound], **kwargs)
     plt.ylabel("Z Axis [um]")
     plt.xlabel("Time Axis [fs]")
     E_type = "Ey"
@@ -139,7 +139,7 @@ def plot_Et_output_ZT(input_field: laser_input.InputField, y_val, is_Ey=True, zb
         E_type = "Ez"
     plt.title("Output " + E_type + " Field Cross Section at Y: " + f"{y_val:.2f}" + " um")
 
-def plot_Ew_output_ZW(input_field: laser_input.InputField, y_val, is_Ey=True, zbound=0, wbound=0):
+def plot_Ew_output_ZW(input_field: laser_input.InputField, y_val, is_Ey=True, zbound=0, wbound=0, **kwargs):
     Ew_vals = np.flip(get_Ew_ZW(input_field, y_val, is_Ey, zbound, wbound).T, axis=0)
 
     if zbound == 0:
@@ -147,7 +147,7 @@ def plot_Ew_output_ZW(input_field: laser_input.InputField, y_val, is_Ey=True, zb
     if wbound == 0:
         wbound = input_field.prop.omegas.max()
 
-    plt.imshow(Ew_vals.real, aspect='auto', extent=[-wbound, wbound, -zbound, zbound])
+    plt.imshow(Ew_vals.real, aspect='auto', extent=[-wbound, wbound, -zbound, zbound], **kwargs)
     plt.ylabel("Z Axis [um]")
     plt.xlabel("Frequency Axis [rad/PHz]")
     E_type = "Ey"
@@ -155,7 +155,7 @@ def plot_Ew_output_ZW(input_field: laser_input.InputField, y_val, is_Ey=True, zb
         E_type = "Ez"
     plt.title("Output " + E_type + " Field Cross Section at Y: " + f"{y_val:.2f}" + " um")
 
-def plot_Ew_input_ZW(input_field: laser_input.InputField, y_val, is_Ey=True, zbound=0, wbound=0):
+def plot_Ew_input_ZW(input_field: laser_input.InputField, y_val, is_Ey=True, zbound=0, wbound=0, **kwargs):
     Ew_vals = np.flip(get_Ew_ZW(input_field, y_val, is_Ey, zbound, wbound, False).T, axis=0)
 
     if zbound == 0:
@@ -163,7 +163,7 @@ def plot_Ew_input_ZW(input_field: laser_input.InputField, y_val, is_Ey=True, zbo
     if wbound == 0:
         wbound = input_field.prop.omegas.max()
 
-    plt.imshow(Ew_vals.real, aspect='auto', extent=[-wbound, wbound, -zbound, zbound])
+    plt.imshow(Ew_vals.real, aspect='auto', extent=[-wbound, wbound, -zbound, zbound], **kwargs)
     plt.ylabel("Z Axis [um]")
     plt.xlabel("Frequency Axis [rad/PHz]")
     E_type = "Ey"
@@ -269,7 +269,7 @@ def get_Ew_ZW(input_field: laser_input.InputField, y_val, is_Ey=True, zbound=0, 
 
 # THIS IS NOT POLISHED AT ALL
 # TODO: Make sure time axis is correct (after flippening)
-def plot_Et_sim_YT(input_field: laser_input.InputField, z_val, is_Ey=True):
+def plot_Et_sim_YT(input_field: laser_input.InputField, z_val, is_Ey=True, **kwargs):
     sim_params = sim_grid_parameters.compute_sim_grid(
         input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output
     )
@@ -305,7 +305,7 @@ def plot_Et_sim_YT(input_field: laser_input.InputField, z_val, is_Ey=True):
 
     plt.imshow(E_vals.real, aspect='auto',
                extent=[t_lo_val, t_hi_val, y_lo_val, y_hi_val],
-               interpolation="None")
+               interpolation="None", **kwargs)
     plt.ylabel("Y Axis [um]")
     plt.xlabel("T Axis [fs]")
     E_type = "Ey"
@@ -313,7 +313,7 @@ def plot_Et_sim_YT(input_field: laser_input.InputField, z_val, is_Ey=True):
         E_type = "Ez"
     plt.title("Sim " + E_type + " Field Cross Section at Z: " + f"{z_val:.2f}" + " um")
 
-def plot_Et_sim_ZT(input_field: laser_input.InputField, y_val, is_Ey=True):
+def plot_Et_sim_ZT(input_field: laser_input.InputField, y_val, is_Ey=True, **kwargs):
     sim_params = sim_grid_parameters.compute_sim_grid(
         input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output
     )
@@ -347,7 +347,7 @@ def plot_Et_sim_ZT(input_field: laser_input.InputField, y_val, is_Ey=True):
 
     plt.imshow(E_vals.real, aspect='auto',
                extent=[t_lo_val, t_hi_val, z_lo_val, z_hi_val],
-               interpolation="None")
+               interpolation="None", **kwargs)
     plt.ylabel("Z Axis [um]")
     plt.xlabel("T Axis [fs]")
     E_type = "Ey"
@@ -355,7 +355,7 @@ def plot_Et_sim_ZT(input_field: laser_input.InputField, y_val, is_Ey=True):
         E_type = "Ez"
     plt.title("Sim " + E_type + " Field Cross Section at Z: " + f"{y_val:.2f}" + " um")
 
-def plot_Et_sim_YZ(input_field: laser_input.InputField, t_val, is_Ey=True):
+def plot_Et_sim_YZ(input_field: laser_input.InputField, t_val, is_Ey=True, **kwargs):
     sim_params = sim_grid_parameters.compute_sim_grid(
         input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output
     )
@@ -391,7 +391,7 @@ def plot_Et_sim_YZ(input_field: laser_input.InputField, t_val, is_Ey=True):
     # TODO: Make sure axes are correct
     plt.imshow(E_vals.real, aspect='auto',
                extent=[z_lo_val, z_hi_val, y_lo_val, y_hi_val],
-               interpolation="None")
+               interpolation="None", **kwargs)
     plt.ylabel("Y Axis [um]")
     plt.xlabel("Z Axis [um]")
     E_type = "Ey"
