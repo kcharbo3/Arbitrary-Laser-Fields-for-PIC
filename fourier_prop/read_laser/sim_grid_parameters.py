@@ -1,4 +1,4 @@
-from fourier_prop.laser_input import (input_laser_field, laser_parameters, utils)
+from fourier_prop.laser_input import (laser_parameters, utils)
 import numpy as np
 from dataclasses import dataclass
 
@@ -9,7 +9,7 @@ DY_SIM = 1 / 16.
 Z_HEIGHT = 28
 DZ_SIM = 1 / 16.
 T_LENGTH = 100.
-DT_SIM = DY_SIM * (0.95 / np.sqrt(2.)) * (0.22/0.27)  # Extra term for CFL condition in 3D...
+DT_SIM = DY_SIM * (0.95 / np.sqrt(2.)) * (0.22/0.27)  # should replace this with 0.95/sqrt(3)
 
 # Not needed for the interpolator, just for sims
 X_LENGTH = 50.
