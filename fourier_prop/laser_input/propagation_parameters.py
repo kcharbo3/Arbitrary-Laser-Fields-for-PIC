@@ -9,13 +9,13 @@ MONOCHROMATIC_ASSUMPTION = False
 # INPUT PLANE
 Y_INPUT_RANGE = 10 * laser_parameters.WAIST_IN
 Z_INPUT_RANGE = Y_INPUT_RANGE
-N_Y_INPUT = 2 ** 10
-N_Z_INPUT = 2 ** 10
+N_Y_INPUT = 2 ** 9
+N_Z_INPUT = 2 ** 9
 Y_VALS_INPUT = np.linspace(-Y_INPUT_RANGE, Y_INPUT_RANGE, N_Y_INPUT)
 Z_VALS_INPUT = np.linspace(-Z_INPUT_RANGE, Z_INPUT_RANGE, N_Z_INPUT)
 
 # OUTPUT PLANE
-Y_OUTPUT_RANGE = 50  # -50 to 50 um
+Y_OUTPUT_RANGE = 30  # -50 to 50 um
 Z_OUTPUT_RANGE = Y_OUTPUT_RANGE
 # Recommended +1 to have center bin at 0, especially for radially polarized beams
 N_Y_OUTPUT = (2 ** 8) + 1
@@ -24,8 +24,8 @@ Y_VALS_OUTPUT = np.linspace(-Y_OUTPUT_RANGE, Y_OUTPUT_RANGE, N_Y_OUTPUT)
 Z_VALS_OUTPUT = np.linspace(-Z_OUTPUT_RANGE, Z_OUTPUT_RANGE, N_Z_OUTPUT)
 
 # TIME DIMENSION
-T_RANGE = 1000
-N_T = 2 ** 12
+T_RANGE = 250
+N_T = 2 ** 10
 
 TIMES = np.linspace(-T_RANGE, T_RANGE, N_T)
 TIMES -= 0.000001

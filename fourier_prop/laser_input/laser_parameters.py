@@ -15,16 +15,16 @@ TEMPORAL_GAUSSIAN_ORDER = 1
 PHASE_OFFSET = 0.
 
 WAIST_IN = 7.5e4
-DELTAX = 2. * WAIST_IN
+DELTAX = 0. * WAIST_IN
 
-# Use either alpha or grating separation for a more accurate chirp profile
-USE_GRATING_EQ = False
-ALPHA = 10000
-GRATING_SEPARATION = 1e3
+# Use either alpha (linear) or grating separation (non-linear) for a more accurate chirp profile
+USE_GRATING_EQ = True
+ALPHA = 0
+GRATING_SEPARATION = 30e4
 
 PULSE_FWHM = 25.
 SPOT_SIZE = 4.
-OUTPUT_DISTANCE_FROM_FOCUS = -40.
+OUTPUT_DISTANCE_FROM_FOCUS = -25.
 
 NORMALIZE_TO_A0 = False
 PEAK_A0 = 21.
