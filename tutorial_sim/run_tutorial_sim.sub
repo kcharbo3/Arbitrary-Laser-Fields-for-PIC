@@ -12,7 +12,7 @@
 #SBATCH --mail-type=end,fail
 #SBATCH --mail-user=EMAIL
 
-export PYTHONPATH=./
+export PYTHONPATH=../
 
 echo "Loading modules..."
 module load gcc
