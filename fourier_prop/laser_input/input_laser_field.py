@@ -162,12 +162,6 @@ class InputField:
 
 
     def _generate_input_Ew_field_as_file(self, req_low_mem: bool, comm, rank, num_processes):
-        if rank == 0:
-            self._create_input_Ew_field_file_y()
-            self._create_input_Ew_field_file_z()
-        if comm is not None:
-            comm.Barrier()
-
         chunk_size, start_index, end_index = get_chunk_info(len(self.prop.omegas), rank, num_processes)
 
         Ew_mem_y = self.get_input_Ew_field_file_y()
@@ -199,13 +193,6 @@ class InputField:
         del Ew_mem_z
 
     def _generate_input_Ew_field_as_file_2d(self, req_low_mem: bool, comm, rank, num_processes):
-        if rank == 0:
-            self._create_input_Ew_field_file_y_2d()
-            self._create_input_Ew_field_file_z_2d()
-
-        if comm is not None:
-            comm.Barrier()
-
         chunk_size, start_index, end_index = get_chunk_info(len(self.prop.omegas), rank, num_processes)
 
         Ew_mem_y = self.get_input_Ew_field_file_y_2d()

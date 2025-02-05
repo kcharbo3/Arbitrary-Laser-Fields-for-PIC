@@ -8,11 +8,11 @@ Y_HEIGHT = 28
 DY_SIM = 1 / 16.
 Z_HEIGHT = 28
 DZ_SIM = 1 / 16.
-T_LENGTH = 100.
-DT_SIM = DY_SIM * (0.95 / np.sqrt(2.)) * (0.22/0.27)  # should replace this with 0.95/sqrt(3)
+T_LENGTH = 250.
+DT_SIM = DY_SIM * (0.95 / np.sqrt(3.))  # To satisfy CFL condition
 
 # Not needed for the interpolator, just for sims
-X_LENGTH = 50.
+X_LENGTH = 75.
 DX_SIM = 1 / 16.
 
 LASER_TIME_START = 50.  # fs

@@ -15,7 +15,7 @@ DT_SIM = DY_SIM * (0.95 / np.sqrt(2.)) * (0.22/0.27)  # Extra term for CFL condi
 X_LENGTH = 100.
 DX_SIM = 1 / 16.
 
-LASER_TIME_START = 75.  # fs
+LASER_TIME_START = 74.93662282191235  # fs
 
 INTERP_Y_PREFIX = 'laser_vals_y_'
 INTERP_Z_PREFIX = 'laser_vals_z_'
