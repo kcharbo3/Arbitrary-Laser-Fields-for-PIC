@@ -64,13 +64,13 @@ Main(
 
 def foil_shape_profile(n0):
     return foil_shapes.angled_flat_2d(
-            n0, 
-            microns_to_norm_units(sim_parameters.FOIL_LEFT_X), 
-            microns_to_norm_units(sim_parameters.FOIL_LENGTH), 
-            microns_to_norm_units(sim_parameters.FOIL_THICKNESS), 
-            sim_parameters.FOIL_ANGLE, 
-            microns_to_norm_units(grid.Y_HEIGHT / 2.)
-        )
+        n0,
+        microns_to_norm_units(sim_parameters.FOIL_LEFT_X),
+        microns_to_norm_units(sim_parameters.FOIL_LENGTH),
+        microns_to_norm_units(sim_parameters.FOIL_THICKNESS),
+        sim_parameters.FOIL_ANGLE,
+        microns_to_norm_units(grid.Y_HEIGHT / 2.)
+    )
 
 n0_h = 30
 frozen_time = 0
@@ -154,16 +154,46 @@ DiagParticleBinning(
     ]
 )
 
-DiagParticleBinning(
-    # name = "my binning",
-    deposited_quantity="weight_ekin",
-    every=1 * data_sample_rate,
-    time_average=1,
-    species=["hydrogen_electrons"],
-    axes=[
-        ["ekin", "auto", "auto", 400]
-    ]
-)
+def weight_energy_threshold50(p):
+    energy = 1836 * (np.sqrt(1 + p.px**2 + p.py**2) - 1) * 0.511
+
+    return np.where(energy > 50, p.weight, 0)
+
+def weight_energy_threshold100(p):
+    energy = 1836 * (np.sqrt(1 + p.px**2 + p.py**2) - 1) * 0.511
+
+    return np.where(energy > 100, p.weight, 0)
+
+def weight_energy_threshold150(p):
+    energy = 1836 * (np.sqrt(1 + p.px**2 + p.py**2) - 1) * 0.511
+
+    return np.where(energy > 150, p.weight, 0)
+
+def weight_energy_threshold200(p):
+    energy = 1836 * (np.sqrt(1 + p.px**2 + p.py**2) - 1) * 0.511
+
+    return np.where(energy > 200, p.weight, 0)
+
+def weightekin_energy_threshold50(p):
+    energy = 1836 * (np.sqrt(1 + p.px**2 + p.py**2) - 1) * 0.511
+
+    return np.where(energy > 50, p.weight * (energy / 0.511), 0)
+
+def weightekin_energy_threshold100(p):
+    energy = 1836 * (np.sqrt(1 + p.px**2 + p.py**2) - 1) * 0.511
+
+    return np.where(energy > 100, p.weight * (energy / 0.511), 0)
+
+def weightekin_energy_threshold150(p):
+    energy = 1836 * (np.sqrt(1 + p.px**2 + p.py**2) - 1) * 0.511
+
+    return np.where(energy > 150, p.weight * (energy / 0.511), 0)
+
+def weightekin_energy_threshold200(p):
+    energy = 1836 * (np.sqrt(1 + p.px**2 + p.py**2) - 1) * 0.511
+
+    return np.where(energy > 200, p.weight * (energy / 0.511), 0)
+
 
 
 def weight_filtered(p):
@@ -173,6 +203,121 @@ def weight_filtered(p):
 def angle_y(p):
     return (180 / np.pi) * np.arctan2(p.py, p.px)
 
+#Tester
+DiagParticleBinning(
+    deposited_quantity=weight_energy_threshold50,
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+        ["ekin", 0, 800, 800]
+    ],
+)
+
+# Actual
+DiagParticleBinning(
+    deposited_quantity="weight",
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
+
+DiagParticleBinning(
+    deposited_quantity=weight_energy_threshold50,
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
+DiagParticleBinning(
+    deposited_quantity=weight_energy_threshold100,
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
+DiagParticleBinning(
+    deposited_quantity=weight_energy_threshold150,
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
+DiagParticleBinning(
+    deposited_quantity=weight_energy_threshold200,
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
+# ekin divergence bins
+DiagParticleBinning(
+    deposited_quantity="weight_ekin",
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
+DiagParticleBinning(
+    deposited_quantity=weightekin_energy_threshold50,
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
+DiagParticleBinning(
+    deposited_quantity=weightekin_energy_threshold100,
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
+DiagParticleBinning(
+    deposited_quantity=weightekin_energy_threshold150,
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
+DiagParticleBinning(
+    deposited_quantity=weightekin_energy_threshold200,
+    every=data_sample_rate,
+    time_average=1,
+    species=["hydrogen_ions"],
+    axes=[
+        [angle_y, -80, 80, 800],
+    ],
+)
+
 # Beg Plots
 DiagParticleBinning(
     deposited_quantity=weight_filtered,
@@ -181,7 +326,7 @@ DiagParticleBinning(
     species=["hydrogen_ions"],
     axes=[
         [angle_y, -80, 80, 800],
-        ["ekin", 0, 800, 800] 
+        ["ekin", 0, 800, 800]
     ],
 )
 
@@ -201,30 +346,6 @@ DiagParticleBinning(
 DiagScreen(
     # name = "my screen",
     shape="plane",
-    point=[microns_to_norm_units(15), 0.],
-    vector=[1., 0.],
-    direction="both",
-    deposited_quantity="weight",
-    species=["hydrogen_ions"],
-    axes=[[angle_y, -90, 90, 400]],
-    every=(Tsim / dt) - 1  # the entire sim
-)
-
-DiagScreen(
-    # name = "my screen",
-    shape="plane",
-    point=[microns_to_norm_units(25), 0.],
-    vector=[1., 0.],
-    direction="both",
-    deposited_quantity="weight",
-    species=["hydrogen_ions"],
-    axes=[[angle_y, -90, 90, 400]],
-    every=(Tsim / dt) - 1  # the entire sim
-)
-
-DiagScreen(
-    # name = "my screen",
-    shape="plane",
     point=[microns_to_norm_units(35), 0.],
     vector=[1., 0.],
     direction="both",
@@ -238,30 +359,6 @@ DiagScreen(
 DiagScreen(
     # name = "my screen",
     shape="plane",
-    point=[microns_to_norm_units(15), 0.],
-    vector=[1., 0.],
-    direction="both",
-    deposited_quantity="weight_ekin",
-    species=["hydrogen_ions"],
-    axes=[[angle_y, -90, 90, 400]],
-    every=(Tsim / dt) - 1  # the entire sim
-)
-
-DiagScreen(
-    # name = "my screen",
-    shape="plane",
-    point=[microns_to_norm_units(25), 0.],
-    vector=[1., 0.],
-    direction="both",
-    deposited_quantity="weight_ekin",
-    species=["hydrogen_ions"],
-    axes=[[angle_y, -90, 90, 400]],
-    every=(Tsim / dt) - 1  # the entire sim
-)
-
-DiagScreen(
-    # name = "my screen",
-    shape="plane",
     point=[microns_to_norm_units(35), 0.],
     vector=[1., 0.],
     direction="both",
@@ -271,6 +368,7 @@ DiagScreen(
     every=(Tsim / dt) - 1  # the entire sim
 )
 
+# Sum
 DiagScreen(
     # name = "my screen",
     shape="plane",
@@ -362,6 +460,203 @@ DiagScreen(
     vector=[1., 0.],
     direction="both",
     deposited_quantity="weight_ekin",
+    species=["hydrogen_ions"],
+    axes=[["y", 0, Lsim[1], 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+# New Screens
+# Weight
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(35), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weight_energy_threshold50,
+    species=["hydrogen_ions"],
+    axes=[[angle_y, -90, 90, 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(35), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weight_energy_threshold100,
+    species=["hydrogen_ions"],
+    axes=[[angle_y, -90, 90, 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(35), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weight_energy_threshold150,
+    species=["hydrogen_ions"],
+    axes=[[angle_y, -90, 90, 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(35), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weight_energy_threshold200,
+    species=["hydrogen_ions"],
+    axes=[[angle_y, -90, 90, 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+# ekin
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(35), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weightekin_energy_threshold50,
+    species=["hydrogen_ions"],
+    axes=[[angle_y, -90, 90, 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(35), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weightekin_energy_threshold100,
+    species=["hydrogen_ions"],
+    axes=[[angle_y, -90, 90, 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(35), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weightekin_energy_threshold150,
+    species=["hydrogen_ions"],
+    axes=[[angle_y, -90, 90, 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(35), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weightekin_energy_threshold200,
+    species=["hydrogen_ions"],
+    axes=[[angle_y, -90, 90, 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+# Energy Density vs Position
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(55), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weight_energy_threshold50,
+    species=["hydrogen_ions"],
+    axes=[["y", 0, Lsim[1], 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(55), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weight_energy_threshold100,
+    species=["hydrogen_ions"],
+    axes=[["y", 0, Lsim[1], 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(55), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weight_energy_threshold150,
+    species=["hydrogen_ions"],
+    axes=[["y", 0, Lsim[1], 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(55), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weight_energy_threshold200,
+    species=["hydrogen_ions"],
+    axes=[["y", 0, Lsim[1], 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+# Energy Density
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(55), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weightekin_energy_threshold50,
+    species=["hydrogen_ions"],
+    axes=[["y", 0, Lsim[1], 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(55), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weightekin_energy_threshold100,
+    species=["hydrogen_ions"],
+    axes=[["y", 0, Lsim[1], 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(55), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weightekin_energy_threshold150,
+    species=["hydrogen_ions"],
+    axes=[["y", 0, Lsim[1], 400]],
+    every=(Tsim / dt) - 1  # the entire sim
+)
+
+DiagScreen(
+    # name = "my screen",
+    shape="plane",
+    point=[microns_to_norm_units(55), 0.],
+    vector=[1., 0.],
+    direction="both",
+    deposited_quantity=weightekin_energy_threshold200,
     species=["hydrogen_ions"],
     axes=[["y", 0, Lsim[1], 400]],
     every=(Tsim / dt) - 1  # the entire sim

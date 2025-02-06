@@ -146,5 +146,32 @@ Notes:
 |-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------|
 | CENTER_PEAK_EFIELD_AT_0 | Once the laser is propagated to the output grid, if this value is true, it will center laser so that it's peak intensity is at T=0. Otherwise, the laser is naturally propagated so that T=0 corresponds to `propagation_distance*c`. | Bool            |
 
+## Scaling
+The parallel nature of this code was briefly tested to illustrate the performance improvements. 
+We tested the laser generation process from start to finish (ending with the interpolation of the output pulse to the PIC grid) using
+a different number of parallel tasks for each run. Each run was performed on a single node that consisted of a
+Intel(R) Xeon(R) Gold 6240R CPU @ 2.40GHz. 32 cores were used for each run.  
+
+The following laser resolution parameters were used in this test:
+
+| Parameters         | Code Input Grid | Code Output Grid   | PIC Interpolation Grid |
+|--------------------|-----------------|--------------------|------------------------|
+| Y Number of Points | 2^8             | 2^9 + 1            | 448 (~2^8)             |
+| Z Number of Points | 2^8             | 2^9 + 1            | 448 (~2^8)             |
+| T Number of Points | 2^11 + 1        | 2^11 + 1           | 5263 (~2^12)           |
+
+Here are the results:
+
+| Number of Parallel Tasks | Time to Completion |
+|--------------------------|--------------------|
+| 1                        | 1:04:13            |
+| 2                        | 33:47              |
+| 4                        | 18:26              |
+| 8                        | 10:46              |
+| 16                       | 6:53               |
+| 32                       | 5:41               |
+
+While the benefits are clear, a deeper study is needed to fully understand when the performance boost of parallelization is maximized,
+and when it is minimized. 
 
 ## Acknowledgements
