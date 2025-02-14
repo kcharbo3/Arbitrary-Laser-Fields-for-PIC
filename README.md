@@ -175,3 +175,12 @@ While the benefits are clear, a deeper study is needed to fully understand when 
 and when it is minimized. 
 
 ## Acknowledgements
+1. We'd like to thank [Diffractio](https://diffractio.readthedocs.io/en/latest/index.html) for their commitment to open-source code 
+   and their implementation of the chirped z-transform. Our implementation of the chirped z-transform is a slightly modified
+   version of theirs. Our implementation is found in `/fourier_prop/propagator/propagation.py`.
+2. This work utilized the infrastructure for high-performance and high-throughput computing, research data storage and analysis, 
+   and scientific software tool integration built, operated, and updated by the Research Cyberinfrastructure Center (RCIC) at the 
+   University of California, Irvine (UCI). The RCIC provides cluster-based systems, application software, 
+   and scalable storage to directly support the UCI research community. https://rcic.uci.edu
+3. We'd like to acknowledge the [Smilei](https://github.com/SmileiPIC/Smilei) team for developing a user-friendly, parallel-computing
+   PIC code with Python support. This made integrating ALFP with PIC simulations easier.
