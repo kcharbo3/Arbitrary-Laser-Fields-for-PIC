@@ -136,10 +136,6 @@ def gaussian_t(omega, omega0, shape_params):
 
 def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
     a = np.deg2rad(angle)
-    signz = -np.sign(np.cos(a))
-    signy = -np.sign(np.sin(a))
-    normz = np.abs(np.cos(a)**-1)
-    normy = np.abs(np.sin(a)**-1)
 
     chirp_val = get_chirp_value(omega, omega0, shape_params)
 
@@ -157,9 +153,9 @@ def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
     base_shape = 1./np.sqrt(num_petals)/np.sqrt(2) * np.array(y_rotated_val * z_rotated_val, dtype=np.complex64)
 
     if is_Ey:
-        u = -signy * base_shape / normy
+        u = base_shape * np.cos(a)
     else:
-        u = -signz * base_shape / normz
+        u = base_shape * np.sin(a)
 
     return u
 
