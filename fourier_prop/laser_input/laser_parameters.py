@@ -32,7 +32,10 @@ TOTAL_ENERGY = 981660.9897641353
 
 # Used for Special Laser Shapes
 L = 1  # LG
-NUM_PETALS = 8  # Petal Beam
+# Petal Beam Parameters
+NUM_PETALS = 8
+WAIST_IN_RADIAL = 7.5e4
+WAIST_IN_AZIMUTHAL = 7.5e4
 
 @dataclass
 class LaserParameters:
@@ -58,6 +61,8 @@ class LaserParameters:
     total_energy: float
     l: int
     num_petals: int
+    waist_in_radial: float
+    waist_in_azimuthal: float
 
 
 laser_parameters_obj = LaserParameters(
@@ -66,5 +71,5 @@ laser_parameters_obj = LaserParameters(
     temporal_gaussian_order=TEMPORAL_GAUSSIAN_ORDER, phase_offset=PHASE_OFFSET, use_grating_eq=USE_GRATING_EQ, alpha=ALPHA,
     grating_separation=GRATING_SEPARATION, deltax=DELTAX, pulse_fwhm=PULSE_FWHM, spot_size=SPOT_SIZE, waist_in=WAIST_IN,
     output_distance_from_focus=OUTPUT_DISTANCE_FROM_FOCUS, normalize_to_a0=NORMALIZE_TO_A0, peak_a0=PEAK_A0,
-    total_energy=TOTAL_ENERGY, l=L, num_petals=NUM_PETALS
+    total_energy=TOTAL_ENERGY, l=L, num_petals=NUM_PETALS, waist_in_radial=WAIST_IN_RADIAL, waist_in_azimuthal=WAIST_IN_AZIMUTHAL
 )

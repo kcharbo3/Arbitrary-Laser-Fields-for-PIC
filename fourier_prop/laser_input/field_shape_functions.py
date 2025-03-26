@@ -13,8 +13,11 @@ class ShapeParameters:
     l: float
     delta_omega: float
     num_petals: int
+    waist_in_radial: float
+    waist_in_azimuthal: float
     spatial_gaussian_order: int
     temporal_gaussian_order: int
+
 
 
 # BEAM SPATIAL FUNCTIONS
@@ -141,12 +144,17 @@ def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
     chirp_val = get_chirp_value(omega, omega0, shape_params)
 
     deltax = shape_params.deltax
-    w_in = shape_params.waist_in
+    w_in_radial = shape_params.waist_in_radial
+    w_in_azimuthal = shape_params.waist_in_azimuthal
     num_petals = shape_params.num_petals
-    base_shape = 1./np.sqrt(num_petals)/np.sqrt(2) \
-                 * np.array(np.exp(-1*((((z+(signz*chirp_val+signz*deltax)/normz) / w_in) ** 2)**shape_params.spatial_gaussian_order
-                                       + (((y+(signy*chirp_val+signy*deltax)/normy)/w_in) ** 2)**shape_params.spatial_gaussian_order)),
-                            dtype=np.complex64)
+
+    r_matrix = np.array([[np.cos(a), -np.sin(a)], [np.sin(a), np.cos(a)]])
+    z_rotated = z*r_matrix[0, 0] + y*r_matrix[0, 1]
+    y_rotated = z*r_matrix[1, 0] + y*r_matrix[1, 1]
+
+    y_rotated_val = np.exp((-((y_rotated - (chirp_val + deltax)) / w_in_radial)**2)**shape_params.spatial_gaussian_order)
+    z_rotated_val = np.exp((-(z_rotated / w_in_azimuthal)**2)**shape_params.spatial_gaussian_order)
+    base_shape = 1./np.sqrt(num_petals)/np.sqrt(2) * np.array(y_rotated_val * z_rotated_val, dtype=np.complex64)
 
     if is_Ey:
         u = -signy * base_shape / normy

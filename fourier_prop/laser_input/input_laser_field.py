@@ -65,6 +65,8 @@ class InputField:
             use_grating_eq=self.laser.use_grating_eq, alpha=self.laser.alpha,
             grating_separation=self.laser.grating_separation, l=self.laser.l,
             delta_omega=self.delta_omega, num_petals=self.laser.num_petals,
+            waist_in_radial=self.laser.waist_in_radial,
+            waist_in_azimuthal=self.laser.waist_in_azimuthal,
             spatial_gaussian_order=self.laser.spatial_gaussian_order,
             temporal_gaussian_order=self.laser.temporal_gaussian_order
         )
