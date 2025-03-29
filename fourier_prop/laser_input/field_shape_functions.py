@@ -148,8 +148,8 @@ def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
     z_rotated = z*r_matrix[0, 0] + y*r_matrix[0, 1]
     y_rotated = z*r_matrix[1, 0] + y*r_matrix[1, 1]
 
-    y_rotated_val = np.exp((-((y_rotated - (chirp_val + deltax)) / w_in_radial)**2)**shape_params.spatial_gaussian_order)
-    z_rotated_val = np.exp((-(z_rotated / w_in_azimuthal)**2)**shape_params.spatial_gaussian_order)
+    y_rotated_val = np.exp(-(((y_rotated - (chirp_val + deltax)) / w_in_radial)**2)**shape_params.spatial_gaussian_order)
+    z_rotated_val = np.exp(-((z_rotated / w_in_azimuthal)**2)**shape_params.spatial_gaussian_order)
     base_shape = 1./np.sqrt(num_petals)/np.sqrt(2) * np.array(y_rotated_val * z_rotated_val, dtype=np.complex64)
 
     if is_Ey:
