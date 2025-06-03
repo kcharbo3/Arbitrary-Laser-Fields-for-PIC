@@ -17,6 +17,8 @@ class ShapeParameters:
     waist_in_azimuthal: float
     spatial_gaussian_order: int
     temporal_gaussian_order: int
+    polarization: str
+    aoi: float
 
 
 
@@ -143,6 +145,7 @@ def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
     w_in_radial = shape_params.waist_in_radial
     w_in_azimuthal = shape_params.waist_in_azimuthal
     num_petals = shape_params.num_petals
+    polarization = shape_params.polarization
 
     r_matrix = np.array([[np.cos(a), -np.sin(a)], [np.sin(a), np.cos(a)]])
     z_rotated = z*r_matrix[0, 0] + y*r_matrix[0, 1]
@@ -152,10 +155,20 @@ def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
     z_rotated_val = np.exp(-((z_rotated / w_in_azimuthal)**2)**shape_params.spatial_gaussian_order)
     base_shape = 1./np.sqrt(num_petals)/np.sqrt(2) * np.array(y_rotated_val * z_rotated_val, dtype=np.complex64)
 
-    if is_Ey:
-        u = base_shape * np.cos(a)
+    if polarization is constants.RADIAL:
+        if is_Ey:
+            u = base_shape * -np.cos(a)
+        else:
+            u = base_shape * np.sin(a)
+    elif polarization is constants.AZIMUTHAL:
+        if is_Ey:
+            u = base_shape * -np.sin(a)
+        else:
+            u = base_shape * np.cos(a)
+    elif polarization is constants.CIRCULAR_R or polarization is constants.CIRCULAR_L:
+        u = base_shape
     else:
-        u = base_shape * np.sin(a)
+        raise Exception("Unsupported polarization for PETAL_N")
 
     return u
 
@@ -165,7 +178,7 @@ def get_chirp_value(omega, omega0, shape_params):
     if shape_params.use_grating_eq:
         chirp_val = _get_grating_chirp(
             shape_params.grating_separation, constants.GROOVE_PERIOD, omega,
-            omega0, constants.ANGLE_OF_INCIDENCE, constants.DIFFRACTION_ORDER
+            omega0, shape_params.aoi, constants.DIFFRACTION_ORDER
         )
     return chirp_val
 
@@ -188,7 +201,7 @@ SPATIAL_SHAPE_MAPPINGS = {
     constants.GAUSSIAN_2D: gaussian_shape_2d, constants.RADIAL_CHIRP: radial_chirp,
     constants.CHEVRON_2D: chevron_chirp_2d, constants.LINEAR_CHIRP_Y: linear_chirp_y,
     constants.LINEAR_CHIRP_Z: linear_chirp_z, constants.LINEAR_2D: linear_chirp_2d,
-    constants.PETAL_N_RADIAL: [petal_n_Ey, petal_n_Ez],
+    constants.PETAL_N: [petal_n_Ey, petal_n_Ez],
 }
 
 TEMPORAL_SHAPE_MAPPINGS = {constants.GAUSSIAN_T: gaussian_t}

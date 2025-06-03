@@ -68,7 +68,9 @@ class InputField:
             waist_in_radial=self.laser.waist_in_radial,
             waist_in_azimuthal=self.laser.waist_in_azimuthal,
             spatial_gaussian_order=self.laser.spatial_gaussian_order,
-            temporal_gaussian_order=self.laser.temporal_gaussian_order
+            temporal_gaussian_order=self.laser.temporal_gaussian_order,
+            polarization=self.laser.polarization,
+            aoi=self.advanced.grating_aoi
         )
 
         beta = utils.get_beta(self.laser.alpha, self.delta_omega, self.laser.waist_in)
@@ -128,15 +130,23 @@ class InputField:
                      dtype=np.complex64)
 
         chunk_size, start_index, end_index = get_chunk_info(len(self.prop.omegas), rank, num_processes)
-        if self.laser.spatial_shape == constants.PETAL_N_RADIAL:
+        if self.laser.spatial_shape == constants.PETAL_N:
             if req_low_mem:
                 ew_field_y = self._calc_Ew_chunk_low_mem(rank, num_processes, self.spatial_shape_function[0])
                 ew_field_z = self._calc_Ew_chunk_low_mem(rank, num_processes, self.spatial_shape_function[1])
             else:
                 ew_field_y = self._calc_Ew_chunk(rank, num_processes, self.spatial_shape_function[0])
                 ew_field_z = self._calc_Ew_chunk(rank, num_processes, self.spatial_shape_function[1])
+
             self.input_Ew_field_y[start_index:end_index] = ew_field_y
-            self.input_Ew_field_z[start_index:end_index] = ew_field_z
+            if self.laser.polarization == constants.CIRCULAR_L:
+                # TODO: check circularly polarization directions....
+                self.input_Ew_field_z[start_index:end_index] = -1.0j * ew_field_z
+            elif self.laser.polarization == constants.CIRCULAR_R:
+                self.input_Ew_field_z[start_index:end_index] = 1.0j * ew_field_z
+            else:
+                self.input_Ew_field_z[start_index:end_index] = ew_field_z
+
         else:
             if req_low_mem:
                 ew_field = self._calc_Ew_chunk_low_mem(rank, num_processes, self.spatial_shape_function)
@@ -169,17 +179,22 @@ class InputField:
         Ew_mem_y = self.get_input_Ew_field_file_y()
         Ew_mem_z = self.get_input_Ew_field_file_z()
 
-        if self.laser.spatial_shape == constants.PETAL_8_RADIAL \
-                or self.laser.spatial_shape == constants.PETAL_N_RADIAL\
-                or self.laser.spatial_shape == constants.PETAL_8_AZIMUTHAL:
+        if self.laser.spatial_shape == constants.PETAL_N:
             if req_low_mem:
                 ew_field_y = self._calc_Ew_chunk_low_mem(rank, num_processes, self.spatial_shape_function[0])
                 ew_field_z = self._calc_Ew_chunk_low_mem(rank, num_processes, self.spatial_shape_function[1])
             else:
                 ew_field_y = self._calc_Ew_chunk(rank, num_processes, self.spatial_shape_function[0])
                 ew_field_z = self._calc_Ew_chunk(rank, num_processes, self.spatial_shape_function[1])
+
             Ew_mem_y[start_index:end_index] = ew_field_y
-            Ew_mem_z[start_index:end_index] = ew_field_z
+            if self.laser.polarization == constants.CIRCULAR_L:
+                # TODO: check circularly polarization directions....
+                Ew_mem_z[start_index:end_index] = -1.0j * ew_field_z
+            elif self.laser.polarization == constants.CIRCULAR_R:
+                Ew_mem_z[start_index:end_index] = 1.0j * ew_field_z
+            else:
+                Ew_mem_z[start_index:end_index] = ew_field_z
         else:
             if req_low_mem:
                 ew_field = self._calc_Ew_chunk_low_mem(rank, num_processes, self.spatial_shape_function)
