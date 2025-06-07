@@ -61,22 +61,19 @@ class InputField:
         )
 
         self.shape_params = field_shape_functions.ShapeParameters(
-            waist_in=self.laser.waist_in, deltax=self.laser.deltax,
-            use_grating_eq=self.laser.use_grating_eq, alpha=self.laser.alpha,
-            grating_separation=self.laser.grating_separation, l=self.laser.l,
+            waist_in=self.laser.waist_in, deltax=self.laser.deltax, l=self.laser.l,
             delta_omega=self.delta_omega, num_petals=self.laser.num_petals,
             waist_in_radial=self.laser.waist_in_radial,
             waist_in_azimuthal=self.laser.waist_in_azimuthal,
             spatial_gaussian_order=self.laser.spatial_gaussian_order,
             temporal_gaussian_order=self.laser.temporal_gaussian_order,
-            polarization=self.laser.polarization,
-            aoi=self.advanced.grating_aoi
+            polarization=self.laser.polarization, grating_params=self.advanced.grating_params
         )
 
-        beta = utils.get_beta(self.laser.alpha, self.delta_omega, self.laser.waist_in)
+        beta = utils.get_beta(self.advanced.grating_params.alpha, self.delta_omega, self.laser.waist_in)
         self.beta_ba = utils.get_betaba(beta)
 
-        self.angle = utils.get_angle(self.laser.alpha, self.laser.omega0,
+        self.angle = utils.get_angle(self.advanced.grating_params.alpha, self.laser.omega0,
                                      self.focus, self.laser.deltax)
 
         self.spatial_shape_function = field_shape_functions.SPATIAL_SHAPE_MAPPINGS[self.laser.spatial_shape]
@@ -478,10 +475,10 @@ class InputField:
         print("Focus:", self.focus)
         effective_waist = self.laser.waist_in + self.laser.deltax
         print("F#:", self.focus / (2. * effective_waist))
-        if self.laser.use_grating_eq:
-            print("Using grating eq with separation:", self.laser.grating_separation)
+        if self.advanced.grating_params.use_grating_eq:
+            print("Using grating eq with separation:", self.advanced.grating_params.grating_separations)
         else:
-            print("Using alpha:", self.laser.alpha)
+            print("Using alpha:", self.advanced.grating_params.alpha)
             print("Angle at Focus:", self.angle)
             print("Beta BA:", self.beta_ba)
 

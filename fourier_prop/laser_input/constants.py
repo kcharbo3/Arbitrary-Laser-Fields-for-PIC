@@ -32,10 +32,6 @@ GAUSSIAN_T = "GAUSSIAN_T"
 C_SPEED = 2.99792458e8
 C_UM_FS = C_SPEED * 1e6 * 1e-15
 
-# GRATING CONSTANTS BASED ON WHAT'S IN USE TODAY
-GROOVE_PERIOD = 1 / 1480e-3  # 1480 Grooves/mm
-DIFFRACTION_ORDER = 1
-
 # Input Field Files
 INPUT_EW_FILE_Y = "input_Ew_mem_y.dat"
 INPUT_ET_FILE_Y = "input_Et_mem_y.dat"

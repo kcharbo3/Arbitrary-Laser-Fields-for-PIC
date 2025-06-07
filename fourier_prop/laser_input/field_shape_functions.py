@@ -1,4 +1,4 @@
-from fourier_prop.laser_input import constants
+from fourier_prop.laser_input import constants, advanced_parameters
 from dataclasses import dataclass
 import numpy as np
 
@@ -7,9 +7,6 @@ import numpy as np
 class ShapeParameters:
     waist_in: float
     deltax: float
-    use_grating_eq: bool
-    alpha: float
-    grating_separation: float
     l: float
     delta_omega: float
     num_petals: int
@@ -18,7 +15,7 @@ class ShapeParameters:
     spatial_gaussian_order: int
     temporal_gaussian_order: int
     polarization: str
-    aoi: float
+    grating_params: advanced_parameters.GratingParameters
 
 
 
@@ -155,17 +152,17 @@ def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
     z_rotated_val = np.exp(-((z_rotated / w_in_azimuthal)**2)**shape_params.spatial_gaussian_order)
     base_shape = 1./np.sqrt(num_petals)/np.sqrt(2) * np.array(y_rotated_val * z_rotated_val, dtype=np.complex64)
 
-    if polarization is constants.RADIAL:
+    if polarization == constants.RADIAL:
         if is_Ey:
             u = base_shape * -np.cos(a)
         else:
             u = base_shape * np.sin(a)
-    elif polarization is constants.AZIMUTHAL:
+    elif polarization == constants.AZIMUTHAL:
         if is_Ey:
             u = base_shape * -np.sin(a)
         else:
             u = base_shape * np.cos(a)
-    elif polarization is constants.CIRCULAR_R or polarization is constants.CIRCULAR_L:
+    elif (polarization == constants.CIRCULAR_R) or (polarization == constants.CIRCULAR_L):
         u = base_shape
     else:
         raise Exception("Unsupported polarization for PETAL_N")
@@ -174,12 +171,17 @@ def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
 
 
 def get_chirp_value(omega, omega0, shape_params):
-    chirp_val = shape_params.alpha * (omega - omega0)
-    if shape_params.use_grating_eq:
-        chirp_val = _get_grating_chirp(
-            shape_params.grating_separation, constants.GROOVE_PERIOD, omega,
-            omega0, shape_params.aoi, constants.DIFFRACTION_ORDER
-        )
+    grating_params = shape_params.grating_params
+    chirp_val = grating_params.alpha * (omega - omega0)
+
+    if grating_params.use_grating_eq:
+        num_gratings = len(grating_params.grating_aois)
+        chirp_val = 0
+        for i in range(num_gratings):
+            chirp_val += _get_grating_chirp(
+                grating_params.grating_separations[i], grating_params.groove_periods[i], omega,
+                omega0, grating_params.grating_aois[i], grating_params.diffraction_orders[i]
+            )
     return chirp_val
 
 

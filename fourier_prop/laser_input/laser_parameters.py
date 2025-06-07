@@ -17,11 +17,6 @@ PHASE_OFFSET = 0.
 WAIST_IN = 7.5e4
 DELTAX = 0. * WAIST_IN
 
-# Use either alpha (linear) or grating separation (non-linear) for a more accurate chirp profile
-USE_GRATING_EQ = True
-ALPHA = 0
-GRATING_SEPARATION = 30e4
-
 PULSE_FWHM = 25.
 SPOT_SIZE = 4.
 OUTPUT_DISTANCE_FROM_FOCUS = -25.
@@ -48,9 +43,6 @@ class LaserParameters:
     temporal_shape: str
     temporal_gaussian_order: int
     phase_offset: float
-    use_grating_eq: bool
-    alpha: float
-    grating_separation: float
     deltax: float
     pulse_fwhm: float
     spot_size: float
@@ -68,8 +60,7 @@ class LaserParameters:
 laser_parameters_obj = LaserParameters(
     wavelength=WAVELENGTH, ref_freq=REF_FREQ, omega0=OMEGA0, polarization=POLARIZATION,
     spatial_shape=SPATIAL_SHAPE, spatial_gaussian_order=SPATIAL_GAUSSIAN_ORDER, temporal_shape=TEMPORAL_SHAPE,
-    temporal_gaussian_order=TEMPORAL_GAUSSIAN_ORDER, phase_offset=PHASE_OFFSET, use_grating_eq=USE_GRATING_EQ, alpha=ALPHA,
-    grating_separation=GRATING_SEPARATION, deltax=DELTAX, pulse_fwhm=PULSE_FWHM, spot_size=SPOT_SIZE, waist_in=WAIST_IN,
+    temporal_gaussian_order=TEMPORAL_GAUSSIAN_ORDER, phase_offset=PHASE_OFFSET, deltax=DELTAX, pulse_fwhm=PULSE_FWHM, spot_size=SPOT_SIZE, waist_in=WAIST_IN,
     output_distance_from_focus=OUTPUT_DISTANCE_FROM_FOCUS, normalize_to_a0=NORMALIZE_TO_A0, peak_a0=PEAK_A0,
     total_energy=TOTAL_ENERGY, l=L, num_petals=NUM_PETALS, waist_in_radial=WAIST_IN_RADIAL, waist_in_azimuthal=WAIST_IN_AZIMUTHAL
 )
