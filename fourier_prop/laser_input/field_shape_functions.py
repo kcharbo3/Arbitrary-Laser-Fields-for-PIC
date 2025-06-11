@@ -108,7 +108,7 @@ def petal_n_Ey(y, z, omega, omega0, shape_params):
     u = np.zeros((len(z), len(y)), dtype=np.complex64)
 
     for petal in range(shape_params.num_petals):
-        field = _single_petal(petal*ang, y, z, omega, omega0, shape_params, is_Ey=True)
+        field = _single_petal(petal*ang, y, z, omega, omega0, shape_params, is_Ey=True, petal_num=petal)
         u += field
 
     return u
@@ -120,7 +120,7 @@ def petal_n_Ez(y, z, omega, omega0, shape_params):
     u = np.zeros((len(z), len(y)), dtype=np.complex64)
 
     for petal in range(shape_params.num_petals):
-        field = _single_petal(petal*ang, y, z, omega, omega0, shape_params, is_Ey=False)
+        field = _single_petal(petal*ang, y, z, omega, omega0, shape_params, is_Ey=False, petal_num=petal)
         u += field
 
     return u
@@ -133,7 +133,7 @@ def gaussian_t(omega, omega0, shape_params):
         dtype=np.complex64
     )
 
-def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
+def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey, petal_num):
     a = np.deg2rad(angle)
 
     chirp_val = get_chirp_value(omega, omega0, shape_params)
@@ -154,7 +154,7 @@ def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
 
     if polarization == constants.RADIAL:
         if is_Ey:
-            u = base_shape * -np.cos(a)
+            u = base_shape * np.cos(a)
         else:
             u = base_shape * np.sin(a)
     elif polarization == constants.AZIMUTHAL:
@@ -162,8 +162,33 @@ def _single_petal(angle, y, z, omega, omega0, shape_params, is_Ey):
             u = base_shape * -np.sin(a)
         else:
             u = base_shape * np.cos(a)
-    elif (polarization == constants.CIRCULAR_R) or (polarization == constants.CIRCULAR_L):
-        u = base_shape
+    elif polarization == constants.CIRCULAR_L:
+        if is_Ey:
+            u = base_shape
+        else:
+            u = -1.0j * base_shape
+    elif polarization == constants.CIRCULAR_R:
+        if is_Ey:
+            u = base_shape
+        else:
+            u = 1.0j * base_shape
+    elif polarization == constants.CIRCULAR_OPPOSITE:
+        if petal_num % 2 == 0:
+            if is_Ey:
+                u = -base_shape
+            else:
+                u = -1.0j * (-base_shape)
+        else:
+            if is_Ey:
+                u = base_shape
+            else:
+                u = -1.0j * base_shape
+    elif polarization == constants.CIRCULAR_RADIAL_START:
+        uy = base_shape * np.cos(a) + 1.0j*base_shape*np.sin(a)
+        if is_Ey:
+            u = uy
+        else:
+            u = -1.0j * uy
     else:
         raise Exception("Unsupported polarization for PETAL_N")
 

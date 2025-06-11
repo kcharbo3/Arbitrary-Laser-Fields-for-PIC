@@ -136,13 +136,7 @@ class InputField:
                 ew_field_z = self._calc_Ew_chunk(rank, num_processes, self.spatial_shape_function[1])
 
             self.input_Ew_field_y[start_index:end_index] = ew_field_y
-            if self.laser.polarization == constants.CIRCULAR_L:
-                # TODO: check circularly polarization directions....
-                self.input_Ew_field_z[start_index:end_index] = -1.0j * ew_field_z
-            elif self.laser.polarization == constants.CIRCULAR_R:
-                self.input_Ew_field_z[start_index:end_index] = 1.0j * ew_field_z
-            else:
-                self.input_Ew_field_z[start_index:end_index] = ew_field_z
+            self.input_Ew_field_z[start_index:end_index] = ew_field_z
 
         else:
             if req_low_mem:
@@ -185,13 +179,7 @@ class InputField:
                 ew_field_z = self._calc_Ew_chunk(rank, num_processes, self.spatial_shape_function[1])
 
             Ew_mem_y[start_index:end_index] = ew_field_y
-            if self.laser.polarization == constants.CIRCULAR_L:
-                # TODO: check circularly polarization directions....
-                Ew_mem_z[start_index:end_index] = -1.0j * ew_field_z
-            elif self.laser.polarization == constants.CIRCULAR_R:
-                Ew_mem_z[start_index:end_index] = 1.0j * ew_field_z
-            else:
-                Ew_mem_z[start_index:end_index] = ew_field_z
+            Ew_mem_z[start_index:end_index] = ew_field_z
         else:
             if req_low_mem:
                 ew_field = self._calc_Ew_chunk_low_mem(rank, num_processes, self.spatial_shape_function)
