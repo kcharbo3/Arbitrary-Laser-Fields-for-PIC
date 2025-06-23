@@ -132,7 +132,7 @@ def axicon_phase_shape(y, z, omega, omega0, shape_params):
     theta = shape_params.axicon_angle
     k = omega / constants.C_UM_FS
 
-    phase = k * R**.5 * np.sin(theta)
+    phase = k * R * np.sin(theta)
 
     envelope = np.exp(-(((R - shape_params.deltax - chirp_val) / shape_params.waist_in) ** 2)**shape_params.spatial_gaussian_order)
 
