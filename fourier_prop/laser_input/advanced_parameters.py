@@ -13,6 +13,8 @@ GRATING_ANGLE_OF_INCIDENCE = [np.deg2rad(52.8)]
 GROOVE_PERIOD = [1 / 1480e-3]  # 1480 Grooves/mm
 DIFFRACTION_ORDER = [1]
 
+AXICON_ANGLE = 0
+
 @dataclass
 class GratingParameters:
     use_grating_eq: bool
@@ -26,6 +28,7 @@ class GratingParameters:
 class AdvancedParameters:
     center_peak_E_at_0: bool
     grating_params: GratingParameters
+    axicon_angle: float
 
 GRATING_PARAMS = GratingParameters(
     use_grating_eq=USE_GRATING_EQ,
@@ -38,5 +41,6 @@ GRATING_PARAMS = GratingParameters(
 
 advanced_parameters_obj = AdvancedParameters(
     center_peak_E_at_0=CENTER_PEAK_EFIELD_AT_0,
-    grating_params=GRATING_PARAMS
+    grating_params=GRATING_PARAMS,
+    axicon_angle=AXICON_ANGLE
 )

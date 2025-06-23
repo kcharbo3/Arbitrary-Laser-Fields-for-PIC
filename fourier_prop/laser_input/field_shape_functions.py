@@ -16,6 +16,7 @@ class ShapeParameters:
     temporal_gaussian_order: int
     polarization: str
     grating_params: advanced_parameters.GratingParameters
+    axicon_angle: float
 
 
 
@@ -125,6 +126,18 @@ def petal_n_Ez(y, z, omega, omega0, shape_params):
 
     return u
 
+def axicon_phase_shape(y, z, omega, omega0, shape_params):
+    R = np.sqrt(y**2 + z**2)
+    chirp_val = get_chirp_value(omega, omega0, shape_params)
+    theta = shape_params.axicon_angle
+    k = omega / constants.C_UM_FS
+
+    phase = k * R**.5 * np.sin(theta)
+
+    envelope = np.exp(-(((R - shape_params.deltax - chirp_val) / shape_params.waist_in) ** 2)**shape_params.spatial_gaussian_order)
+
+    return np.array(envelope * np.exp(1j * phase), dtype=np.complex64)
+
 
 # BEAM TEMPORAL FUNCTIONS
 def gaussian_t(omega, omega0, shape_params):
@@ -228,7 +241,7 @@ SPATIAL_SHAPE_MAPPINGS = {
     constants.GAUSSIAN_2D: gaussian_shape_2d, constants.RADIAL_CHIRP: radial_chirp,
     constants.CHEVRON_2D: chevron_chirp_2d, constants.LINEAR_CHIRP_Y: linear_chirp_y,
     constants.LINEAR_CHIRP_Z: linear_chirp_z, constants.LINEAR_2D: linear_chirp_2d,
-    constants.PETAL_N: [petal_n_Ey, petal_n_Ez],
+    constants.PETAL_N: [petal_n_Ey, petal_n_Ez], constants.AXICON: axicon_phase_shape
 }
 
 TEMPORAL_SHAPE_MAPPINGS = {constants.GAUSSIAN_T: gaussian_t}

@@ -67,7 +67,8 @@ class InputField:
             waist_in_azimuthal=self.laser.waist_in_azimuthal,
             spatial_gaussian_order=self.laser.spatial_gaussian_order,
             temporal_gaussian_order=self.laser.temporal_gaussian_order,
-            polarization=self.laser.polarization, grating_params=self.advanced.grating_params
+            polarization=self.laser.polarization, grating_params=self.advanced.grating_params,
+            axicon_angle=self.advanced.axicon_angle
         )
 
         beta = utils.get_beta(self.advanced.grating_params.alpha, self.delta_omega, self.laser.waist_in)
