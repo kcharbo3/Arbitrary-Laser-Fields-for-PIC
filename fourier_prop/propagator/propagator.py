@@ -29,6 +29,14 @@ def generate_output_Et_field(input_field: laser_input.InputField, comm=None, ran
     else:
         _generate_output_Et_field_in_memory(input_field, comm, rank, num_processes)
 
+def generate_input_Et_field(input_field: laser_input.InputField, comm=None, rank=0, num_processes=1):
+    if comm is not None:
+        comm.Barrier()
+    if input_field.prop.save_data_as_files:
+        raise Exception("Generate input Et as a file not yet supported")
+    else:
+        _generate_input_Et_field_in_memory(input_field, comm, rank, num_processes)
+
 
 # Private Functions
 
@@ -145,6 +153,14 @@ def _generate_output_Et_field_as_file(input_field: laser_input.InputField, comm,
     _convert_from_freq_to_time(input_field, Ew_output_y, Et_output_y, rank, num_processes)
     _convert_from_freq_to_time(input_field, Ew_output_z, Et_output_z, rank, num_processes)
 
+def _generate_input_Et_field_in_memory(input_field: laser_input.InputField, comm, rank, num_processes):
+    input_Ew_field_y = np.fft.ifftshift(input_field.input_Ew_field_y, axes=0)
+    input_Et_field_y = np.fft.ifft(input_Ew_field_y, axis=0)
+    input_field.input_Et_field_y = np.swapaxes(np.fft.fftshift(input_Et_field_y, axes=0), 0, 1)
+
+    input_Ew_field_z = np.fft.ifftshift(input_field.input_Ew_field_z, axes=0)
+    input_Et_field_z = np.fft.ifft(input_Ew_field_z, axis=0)
+    input_field.input_Et_field_z = np.swapaxes(np.fft.fftshift(input_Et_field_z, axes=0), 0, 1)
 
 def _convert_from_freq_to_time(input_field, Ew, Et, rank, num_processes):
     chunk_size, start_index, end_index = laser_input.get_chunk_info(len(input_field.prop.y_vals_output), rank, num_processes)
@@ -509,6 +525,31 @@ def _propagate_frequencies_2d(input_field: laser_input.InputField, omega_indexes
                                    * np.exp(-1j * K_VALS_OUTPUT * (prop_distance - input_field.focus)) \
                                    * np.exp(-1j * K_VALS_OUTPUT * R_output)
 
+
+def get_Ex_output(input_field: laser_input.InputField):
+    dy = input_field.prop.y_vals_output[1] - input_field.prop.y_vals_output[0]
+    dz = input_field.prop.z_vals_output[1] - input_field.prop.z_vals_output[0]
+
+    ky = np.array(np.fft.fftshift(2*np.pi*np.fft.fftfreq(input_field.prop.N_y_output, dy)), dtype=np.float64)
+    kz = np.array(np.fft.fftshift(2*np.pi*np.fft.fftfreq(input_field.prop.N_z_output, dz)), dtype=np.float64)
+
+    Ky, Kz = np.meshgrid(ky, kz, indexing='ij')
+    ex_kspace = np.zeros(
+        (input_field.prop.omegas.size, input_field.prop.N_y_output, input_field.prop.N_z_output),
+        dtype=np.complex64
+    )
+
+    for w,omega in enumerate(input_field.prop.omegas):
+        k = omega/constants.C_UM_FS
+        kx = np.emath.sqrt(k**2-Ky**2-Kz**2)
+
+        ey_kspace = np.fft.fftshift(np.fft.fft2(np.fft.ifftshift(input_field.output_Ew_field_y[w])))
+        ez_kspace = np.fft.fftshift(np.fft.fft2(np.fft.ifftshift(input_field.output_Ew_field_z[w])))
+        ex_kspace[w] = (-Ky*ey_kspace-Kz*ez_kspace)/kx
+
+    ex_w = np.fft.fftshift(np.fft.ifft2(np.fft.ifftshift(ex_kspace)))
+    ex_t = np.fft.ifftshift(np.fft.ifft(np.fft.fftshift(ex_w), axis=0))
+    return ex_t
 
 def _next_pow2(x):
     y = np.ceil(np.log2(x))
