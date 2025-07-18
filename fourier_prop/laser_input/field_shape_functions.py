@@ -1,6 +1,7 @@
 from fourier_prop.laser_input import constants, advanced_parameters
 from dataclasses import dataclass
 import numpy as np
+import scipy
 
 
 @dataclass
@@ -17,8 +18,7 @@ class ShapeParameters:
     polarization: str
     grating_params: advanced_parameters.GratingParameters
     axicon_angle: float
-
-
+    echelon_delay: float
 
 # BEAM SPATIAL FUNCTIONS
 def lg_shape(y, z, omega, omega0, shape_params):
@@ -72,6 +72,19 @@ def radial_chirp(y, z, omega, omega0, shape_params):
         np.exp(-1. * ((((R - shape_params.deltax - chirp_val) / shape_params.waist_in) ** 2)**shape_params.spatial_gaussian_order))
         * R, dtype=np.complex64
     )
+
+def radial_sinc_shape(y, z, omega, omega0, shape_params):
+    R = np.sqrt(y ** 2 + z ** 2)
+    chirp_val = get_chirp_value(omega, omega0, shape_params)
+
+    k = np.pi / shape_params.waist_in
+    kr = k * (R - shape_params.deltax - chirp_val)
+
+    with np.errstate(divide='ignore', invalid='ignore'):
+        profile = 2 * scipy.special.j1(kr) / kr
+        profile[R == 0] = 1.0
+
+    return np.array(profile, dtype=np.complex64)
 
 def chevron_chirp_2d(y, omega, omega0, shape_params):
     chirp_val = get_chirp_value(omega, omega0, shape_params)
@@ -137,6 +150,23 @@ def axicon_phase_shape(y, z, omega, omega0, shape_params):
     envelope = np.exp(-(((R - shape_params.deltax - chirp_val) / shape_params.waist_in) ** 2)**shape_params.spatial_gaussian_order)
 
     return np.array(envelope * np.exp(1j * phase), dtype=np.complex64)
+
+def echelon_phase_shape(y, z, omega, omega0, shape_params):
+    R = np.sqrt(y**2 + z**2)
+    chirp_val = get_chirp_value(omega, omega0, shape_params)
+
+    k = omega / constants.C_UM_FS
+
+    tau_max = shape_params.echelon_delay
+    R_max = shape_params.waist_in
+    tau_D = tau_max * (R / R_max)**2
+    lam0 = (constants.C_UM_FS * 2 * np.pi) / omega0
+    delay_term = (constants.C_UM_FS * tau_D) / lam0
+    phase_echelon = -(k / 2.) * lam0 * (np.ceil(delay_term) + np.floor(delay_term))
+
+    envelope = np.exp(-(((R - shape_params.deltax - chirp_val) / shape_params.waist_in) ** 2)**shape_params.spatial_gaussian_order)
+
+    return np.array(envelope * np.exp(1j * phase_echelon), dtype=np.complex64)
 
 
 # BEAM TEMPORAL FUNCTIONS
@@ -239,9 +269,10 @@ SPATIAL_SHAPE_MAPPINGS = {
     constants.LG: lg_shape, constants.LG_2D: lg_shape_2d, constants.LG_RADIAL_CHIRP: lg_shape_radial_chirp,
     constants.LG_RADIAL_CHIRP_2D: lg_shape_radial_chirp_2d, constants.GAUSSIAN: gaussian_shape,
     constants.GAUSSIAN_2D: gaussian_shape_2d, constants.RADIAL_CHIRP: radial_chirp,
-    constants.CHEVRON_2D: chevron_chirp_2d, constants.LINEAR_CHIRP_Y: linear_chirp_y,
-    constants.LINEAR_CHIRP_Z: linear_chirp_z, constants.LINEAR_2D: linear_chirp_2d,
-    constants.PETAL_N: [petal_n_Ey, petal_n_Ez], constants.AXICON: axicon_phase_shape
+    constants.RADIAL_SINC: radial_sinc_shape, constants.CHEVRON_2D: chevron_chirp_2d,
+    constants.LINEAR_CHIRP_Y: linear_chirp_y, constants.LINEAR_CHIRP_Z: linear_chirp_z,
+    constants.LINEAR_2D: linear_chirp_2d, constants.PETAL_N: [petal_n_Ey, petal_n_Ez],
+    constants.AXICON: axicon_phase_shape, constants.ECHELON: echelon_phase_shape
 }
 
 TEMPORAL_SHAPE_MAPPINGS = {constants.GAUSSIAN_T: gaussian_t}

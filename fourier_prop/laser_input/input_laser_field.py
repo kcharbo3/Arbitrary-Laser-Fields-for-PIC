@@ -68,7 +68,7 @@ class InputField:
             spatial_gaussian_order=self.laser.spatial_gaussian_order,
             temporal_gaussian_order=self.laser.temporal_gaussian_order,
             polarization=self.laser.polarization, grating_params=self.advanced.grating_params,
-            axicon_angle=self.advanced.axicon_angle
+            axicon_angle=self.advanced.axicon_angle, echelon_delay=self.advanced.echelon_delay
         )
 
         beta = utils.get_beta(self.advanced.grating_params.alpha, self.delta_omega, self.laser.waist_in)
