@@ -36,8 +36,8 @@ Git is assumed to be installed as well.
 
 ### Interacting with the Code
 In the directory you want to download and use this code, run `git clone https://github.com/kcharbo3/Arbitrary-Laser-Fields-for-PIC.git`.
-Once the download is complete, you can navigate to `/notebooks/Tutorial.ipynb` and play around with the notebook code to interact
-with this code. If you cloned this code to an HPC with Smilei installed, you can navigate to `/tutorial_sims/README.md` to 
+Once the download is complete, you can navigate to `/tutorials/Tutorial.ipynb` and play around with the notebook code to interact
+with this package. If you cloned this code to an HPC with Smilei installed, you can navigate to `/tutorials/tutorial_sims/README.md` to 
 test the full workflow of running this code with a PIC simulation.
 
 ## Stages in more detail
@@ -57,7 +57,7 @@ laser field values `E(Y, Z, T)` in time space.
 
 ### Interpolation (Stage 4)
 **Stage 4** is where the output laser field `E(Y, Z, T)` is interpolated to the PIC simulation grid. Since PIC simulations often require
-very high resolution grids, these values are usually output to files (set by `propagation_parameters.save_as_files`).
+very high resolution grids, these values are usually output to files (set by `config.save_as_files`).
 
 ### PIC Simulation (Stage 5)
 **Stage 5** reads the output files from stage 4 and hands the values over to the PIC simulation software as requested. The PIC simulation
@@ -66,15 +66,21 @@ laser entrance window (`X = Position_of_laser_entrance_window`) as a function of
 files from stage 4 to get the entering laser field. Once the values are read and input into the PIC simulation, the PIC software uses
 it's own E&M equations to propagate the field.
 
-## Parameter Files
-There are a few files that define the parameters of the laser and simulation that the user will want to change. The files are:
+## Config Files
+The parameters for the laser and the PIC simulation can be set through a config file. The `configs/base_config.py` is a config file
+that sets all parameters. The user can use this config file, use a config file that copies the base_config but modifies only a few
+parameters (see `configs/modified_base_config_example.py`), or create an entirely new config. The path to this config file will be
+handed over to the laser generation code and PIC namelist so that the laser will be generated with the correct parameters, and the 
+simulation will run with the correct parameters. For example, the tutorial simulation in `./tutorials/tutorial_sim/` uses 
+`tutorial_config.py`.
 
-1. `/fourier_prop/laser_input/laser_parameters.py` - defines the primary laser parameters
-2. `/fourier_prop/laser_input/propagation_parameters.py` - defines the primary propagation parameters such as grid resolutions
-3. `/fourier_prop/laser_input/advanced_parameters.py` - parameters not commonly used, but give finer control over the laser
-4. `/fourier_prop/read_laser/sim_grid_parameters.py` - parameters used for the PIC simulation grid, and therefore for the laser interpolation grid
-5. `/fourier_prop/read_laser/sim_grid_parameters_2d.py` - same as 4., but for 2d simulations
-6. `fourier_prop/sim_helpers/sim_parameters.py` - parameters for the PIC simulation namelist, such as foil thickness. Can be used by namelists.
+There are 5 sections of parameters that can be set in the config file:
+
+1. Laser Parameters - defines the primary laser parameters.
+2. Propagation Parameters - defines the primary propagation parameters such as grid resolutions.
+3. Advanced Parameters - parameters not commonly used, but give finer control over the laser.
+4. Simulation Grid Parameters - parameters used for the PIC simulation grid, and therefore for the laser interpolation grid.
+5. Other Simulation Parameters - other parameters needed for the simulation such as foil dimensions.
 
 ### Laser Parameters
 | Parameter                  | Description                                                                                                                                       | Accepted Values                                                                                                                                                                              |
@@ -113,7 +119,7 @@ Notes:
    g. RADIAL_SINC - Applies a radial sinc shape, which uses the Bessel function of the first kind. Also supports for spatial chirp.
 2. Normalizing the Laser - Users can either normalize the laser so that the peak E field at the defined propagation distance equals laser_parameters.PEAK_A0, or they can normalize the energy. However, the TOTAL_ENERGY value is not in Joules at the moment. It is an arbitrary unit that must be calibrated by users first before normalizing all of their lasers to that value.
    - For example, if a user wants to normalize the laser to 20 Joules, they could run a simulation of the laser energy only, and output the simulation energy, let's call it `P`. The laser generation output will output the total energy value in arbitrary units, let's call it `Q`. Then to get a 20 Joule laser, they just set the TOTAL_ENERGY parameter = `Q * (20 / P)`. This should create a 20 Joule laser.
-3. Petal Beam - TODO: cite symmetric chirp paper. 
+3. Petal Beam - A realistic approximation to the radially chirped beam. See [Focused axisymmetric spatially chirped beams](https://arxiv.org/html/2505.24817v1) for more details.
 
 ### Propagation Parameters
 | Parameter                | Description                                                                                                           | Accepted Values                            |
