@@ -2,8 +2,8 @@ from fourier_prop.laser_input import input_laser_field
 from fourier_prop.read_laser import read_laser
 from fourier_prop.read_laser import read_laser_2d
 from fourier_prop.propagator import propagator
-
 from mpi4py import *
+import sys
 
 def rank0_print(rank, text):
     if rank == 0:
@@ -14,7 +14,11 @@ rank = comm.Get_rank()
 num_processes = comm.Get_size()
 
 if rank == 0:
-    input_field = input_laser_field.get_input_field(verbose=True)
+    if len(sys.argv) != 2:
+        print("Usage: python generate_laser.py ./path/to/run1.py")
+        sys.exit(1)
+    config_path = sys.argv[1]
+    input_field = input_laser_field.get_input_field(config_path=config_path, verbose=True)
     for i in range(num_processes - 1):
         comm.send(input_field, dest=i+1)
 else:

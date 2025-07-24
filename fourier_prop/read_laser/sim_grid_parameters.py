@@ -1,21 +1,6 @@
-from fourier_prop.laser_input import (laser_parameters, utils)
+from fourier_prop.laser_input import utils
 import numpy as np
 from dataclasses import dataclass
-
-
-# In microns
-Y_HEIGHT = 28
-DY_SIM = 1 / 16.
-Z_HEIGHT = 28
-DZ_SIM = 1 / 16.
-T_LENGTH = 250.
-DT_SIM = DY_SIM * (0.95 / np.sqrt(3.))  # To satisfy CFL condition
-
-# Not needed for the interpolator, just for sims
-X_LENGTH = 75.
-DX_SIM = 1 / 16.
-
-LASER_TIME_START = 50.  # fs
 
 INTERP_Y_PREFIX = 'laser_vals_y_'
 INTERP_Z_PREFIX = 'laser_vals_z_'
@@ -54,19 +39,18 @@ class SimGridParameters:
     center_y_code_units: float
     center_z_code_units: float
 
-def compute_sim_grid(times, y_vals_output, z_vals_output):
-    ref_freq = laser_parameters.REF_FREQ
-    num_wavelengths_y = utils.microns_to_norm_units(Y_HEIGHT, ref_freq) / (2*np.pi)
-    num_wavelengths_z = utils.microns_to_norm_units(Z_HEIGHT, ref_freq) / (2*np.pi)
-    num_periods = utils.fs_to_norm_units(T_LENGTH, ref_freq) / (2*np.pi)
+def compute_sim_grid(times, y_vals_output, z_vals_output, grid_params, ref_freq):
+    num_wavelengths_y = utils.microns_to_norm_units(grid_params.y_height, ref_freq) / (2*np.pi)
+    num_wavelengths_z = utils.microns_to_norm_units(grid_params.z_height, ref_freq) / (2*np.pi)
+    num_periods = utils.fs_to_norm_units(grid_params.t_length, ref_freq) / (2*np.pi)
 
     output_time_vals_code_units = utils.fs_to_norm_units(times, ref_freq)
     output_y_vals_code_units = utils.microns_to_norm_units(y_vals_output, ref_freq)
     output_z_vals_code_units = utils.microns_to_norm_units(z_vals_output, ref_freq)
 
-    cell_height_y = (2*np.pi) * DY_SIM
-    cell_height_z = (2*np.pi) * DZ_SIM
-    cell_length = (2*np.pi) * DT_SIM
+    cell_height_y = (2*np.pi) * grid_params.dy_sim
+    cell_height_z = (2*np.pi) * grid_params.dz_sim
+    cell_length = (2*np.pi) * grid_params.dt_sim
 
     y_length_code_units = num_wavelengths_y * 2*np.pi
     y_vals_sim = np.arange(-2 * cell_height_y, y_length_code_units + 3*cell_height_y, cell_height_y)
@@ -87,9 +71,9 @@ def compute_sim_grid(times, y_vals_output, z_vals_output):
 
     t_vals_sim_fs = utils.norm_units_to_fs(t_vals_sim, ref_freq)
 
-    laser_time_start = utils.fs_to_norm_units(LASER_TIME_START, ref_freq)
-    center_y = utils.microns_to_norm_units(Y_HEIGHT / 2.0, ref_freq)
-    center_z = utils.microns_to_norm_units(Z_HEIGHT / 2.0, ref_freq)
+    laser_time_start = utils.fs_to_norm_units(grid_params.laser_start_time, ref_freq)
+    center_y = utils.microns_to_norm_units(grid_params.y_height / 2.0, ref_freq)
+    center_z = utils.microns_to_norm_units(grid_params.z_height / 2.0, ref_freq)
 
     t_lo_index_output, t_hi_index_output = _get_output_indices_for_smaller_grid(
         laser_time_start,

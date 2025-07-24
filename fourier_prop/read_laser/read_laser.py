@@ -94,7 +94,8 @@ def get_Bz_function(data_directory_path, grid_params: grid.SimGridParameters):
 
 def compute_field_at_sim_grid(input_field: laser_input.InputField, comm, rank, num_processes, verbose=False):
     sim_grid_parameters = grid.compute_sim_grid(
-        input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output
+        input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output,
+        input_field.sim_grid, input_field.laser.ref_freq
     )
 
     if verbose and rank == 0:

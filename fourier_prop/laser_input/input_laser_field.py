@@ -1,30 +1,31 @@
 from fourier_prop.laser_input import (
-    advanced_parameters,
-    propagation_parameters,
-    laser_parameters,
     field_shape_functions,
     utils,
     constants
 )
+
+from configs import (
+    load_config,
+    structs
+)
+
 import numpy as np
 import os
-
-
-# TODO: Add support for Ez field
-# TODO: Finish support for Et input field
 
 class InputField:
 
     def __init__(
             self,
-            propagation_params: propagation_parameters.PropagationParameters,
-            laser_params: laser_parameters.LaserParameters,
-            advanced_params: advanced_parameters.AdvancedParameters,
+            propagation_params: structs.PropagationParameters,
+            laser_params: structs.LaserParameters,
+            advanced_params: structs.AdvancedParameters,
+            sim_grid_params: structs.SimulationGridParameters = structs.SimulationGridParameters(),
             verbose=False
     ):
         self.prop = propagation_params
         self.laser = laser_params
         self.advanced = advanced_params
+        self.sim_grid = sim_grid_params
         self.verbose = verbose
 
         # Input Fields
@@ -471,9 +472,10 @@ class InputField:
             print("Angle at Focus:", self.angle)
             print("Beta BA:", self.beta_ba)
 
-def get_input_field(verbose=False):
-    return InputField(propagation_parameters.propagation_parameters_obj,
-                      laser_parameters.laser_parameters_obj, advanced_parameters.advanced_parameters_obj, verbose)
+
+def get_input_field(config_path="./configs/base_config.py", verbose=False):
+    config = load_config.load_config(config_path)
+    return InputField(config["propagation"], config["laser"], config["advanced"], config["sim_grid"], verbose)
 
 
 def get_chunk_start_index(total_size, rank, num_processes):

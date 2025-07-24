@@ -1,4 +1,5 @@
-from fourier_prop.laser_input import constants, advanced_parameters
+from fourier_prop.laser_input import constants
+from configs import structs
 from dataclasses import dataclass
 import numpy as np
 import scipy
@@ -16,7 +17,7 @@ class ShapeParameters:
     spatial_gaussian_order: int
     temporal_gaussian_order: int
     polarization: str
-    grating_params: advanced_parameters.GratingParameters
+    grating_params: structs.GratingParameters
     axicon_angle: float
     echelon_delay: float
 

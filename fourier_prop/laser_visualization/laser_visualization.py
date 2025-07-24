@@ -271,11 +271,11 @@ def get_Ew_ZW(input_field: laser_input.InputField, y_val, is_Ey=True, zbound=0, 
 # TODO: Make sure time axis is correct (after flippening)
 def plot_Et_sim_YT(input_field: laser_input.InputField, z_val, is_Ey=True, **kwargs):
     sim_params = sim_grid_parameters.compute_sim_grid(
-        input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output
+        input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output,
+        input_field.sim_grid, input_field.laser.ref_freq
     )
-    ref_freq = (2*np.pi*constants.C_SPEED) / (input_field.laser.wavelength * 1.e-6)
 
-    z_val_code_units = utils.microns_to_norm_units(z_val, ref_freq)
+    z_val_code_units = utils.microns_to_norm_units(z_val, input_field.laser.ref_freq)
     # TODO: the index needs to account for clipping
     z_vals_clipped = sim_params.sim_z_vals_code_units[
                      sim_params.z_indexes.lo_index_sim:sim_params.z_indexes.hi_index_sim + 1
@@ -315,11 +315,11 @@ def plot_Et_sim_YT(input_field: laser_input.InputField, z_val, is_Ey=True, **kwa
 
 def plot_Et_sim_ZT(input_field: laser_input.InputField, y_val, is_Ey=True, **kwargs):
     sim_params = sim_grid_parameters.compute_sim_grid(
-        input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output
+        input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output,
+        input_field.sim_grid, input_field.laser.ref_freq
     )
-    ref_freq = (2*np.pi*constants.C_SPEED) / (input_field.laser.wavelength * 1.e-6)
 
-    y_val_code_units = utils.microns_to_norm_units(y_val, ref_freq)
+    y_val_code_units = utils.microns_to_norm_units(y_val, input_field.laser.ref_freq)
     y_vals_clipped = sim_params.sim_y_vals_code_units[
                      sim_params.y_indexes.lo_index_sim:sim_params.y_indexes.hi_index_sim + 1
                      ]
@@ -357,11 +357,11 @@ def plot_Et_sim_ZT(input_field: laser_input.InputField, y_val, is_Ey=True, **kwa
 
 def plot_Et_sim_YZ(input_field: laser_input.InputField, t_val, is_Ey=True, **kwargs):
     sim_params = sim_grid_parameters.compute_sim_grid(
-        input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output
+        input_field.prop.times, input_field.prop.y_vals_output, input_field.prop.z_vals_output,
+        input_field.sim_grid, input_field.laser.ref_freq
     )
-    ref_freq = (2*np.pi*constants.C_SPEED) / (input_field.laser.wavelength * 1.e-6)
 
-    t_val_code_units = utils.fs_to_norm_units(t_val, ref_freq)
+    t_val_code_units = utils.fs_to_norm_units(t_val, input_field.laser.ref_freq)
     t_vals_clipped = sim_params.sim_times_code_units[
                      sim_params.t_indexes.lo_index_sim:sim_params.t_indexes.hi_index_sim + 1
                      ]
