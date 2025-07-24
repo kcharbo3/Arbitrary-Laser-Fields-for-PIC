@@ -13,7 +13,7 @@
 #SBATCH --mail-user=EMAIL
 
 export PYTHONPATH=../../
-export ALFP_CONFIG = "./path/to/your_config.py"
+export ALFP_CONFIG="./path/to/your_config.py"
 
 echo "Loading modules..."
 module load gcc

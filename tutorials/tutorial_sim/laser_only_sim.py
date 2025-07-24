@@ -52,7 +52,7 @@ Main(
 
     interpolation_order=2,
 
-    cell_length=[l0 * grid_params.DX_SIM, l0 * grid_params.DY_SIM, l0 * grid_params.DZ_SIM],
+    cell_length=[l0 * grid_params.dx_sim, l0 * grid_params.dy_sim, l0 * grid_params.dz_sim],
     grid_length=Lsim,
 
     number_of_patches=[16, 16, 16],
