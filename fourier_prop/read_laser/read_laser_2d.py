@@ -12,19 +12,19 @@ Needs to:
 3. Convert E field arrays to B field arrays
 2. Interpolate to sim params
 '''
-def get_By_function(data_directory_path, grid_params: grid.SimGridParameters):
+def get_By_function(data_directory_path, full_grid_params: grid.FullSimGridParameters):
     Et_sim_z = np.memmap(
         data_directory_path + constants.OUTPUT_ET_SIM_FILE_Z, dtype='complex64',
-        mode='r+', shape=(grid_params.num_y_vals, grid_params.num_t_vals)
+        mode='r+', shape=(full_grid_params.num_y_vals, full_grid_params.num_t_vals)
     )
 
-    t_indexes = grid_params.t_indexes
-    t_start = grid_params.sim_times_code_units[t_indexes.lo_index_sim]
-    t_end = grid_params.sim_times_code_units[t_indexes.hi_index_sim]
+    t_indexes = full_grid_params.t_indexes
+    t_start = full_grid_params.sim_times_code_units[t_indexes.lo_index_sim]
+    t_end = full_grid_params.sim_times_code_units[t_indexes.hi_index_sim]
 
-    y_indexes = grid_params.y_indexes
-    y_start = grid_params.sim_y_vals_code_units[y_indexes.lo_index_sim]
-    y_end = grid_params.sim_y_vals_code_units[y_indexes.hi_index_sim]
+    y_indexes = full_grid_params.y_indexes
+    y_start = full_grid_params.sim_y_vals_code_units[y_indexes.lo_index_sim]
+    y_end = full_grid_params.sim_y_vals_code_units[y_indexes.hi_index_sim]
 
     def by_profile(y, t):
         if (t < t_start) | (t > t_end):
@@ -36,27 +36,27 @@ def get_By_function(data_directory_path, grid_params: grid.SimGridParameters):
         t_shifted = t - t_start
         y_shifted = y - y_start
 
-        t_index = int(.5 + (t_shifted / (2*np.pi*grid.DT_SIM)))
-        y_index = int(.5 + (y_shifted / (2*np.pi*grid.DY_SIM)))
+        t_index = int(.5 + (t_shifted / (2*np.pi*full_grid_params.initial_grid_params.dt_sim)))
+        y_index = int(.5 + (y_shifted / (2*np.pi*full_grid_params.initial_grid_params.dy_sim)))
 
         # By = -Ez
         return -1.0 * Et_sim_z[y_index, t_index]
 
     return by_profile
 
-def get_Bz_function(data_directory_path, grid_params: grid.SimGridParameters):
+def get_Bz_function(data_directory_path, full_grid_params: grid.FullSimGridParameters):
     Et_sim_y = np.memmap(
         data_directory_path + constants.OUTPUT_ET_SIM_FILE_Y, dtype='complex64',
-        mode='r+', shape=(grid_params.num_y_vals, grid_params.num_t_vals)
+        mode='r+', shape=(full_grid_params.num_y_vals, full_grid_params.num_t_vals)
     )
 
-    t_indexes = grid_params.t_indexes
-    t_start = grid_params.sim_times_code_units[t_indexes.lo_index_sim]
-    t_end = grid_params.sim_times_code_units[t_indexes.hi_index_sim]
+    t_indexes = full_grid_params.t_indexes
+    t_start = full_grid_params.sim_times_code_units[t_indexes.lo_index_sim]
+    t_end = full_grid_params.sim_times_code_units[t_indexes.hi_index_sim]
 
-    y_indexes = grid_params.y_indexes
-    y_start = grid_params.sim_y_vals_code_units_half[y_indexes.lo_index_sim_half]
-    y_end = grid_params.sim_y_vals_code_units_half[y_indexes.hi_index_sim_half]
+    y_indexes = full_grid_params.y_indexes
+    y_start = full_grid_params.sim_y_vals_code_units_half[y_indexes.lo_index_sim_half]
+    y_end = full_grid_params.sim_y_vals_code_units_half[y_indexes.hi_index_sim_half]
 
     def bz_profile(y, t):
         if (t < t_start) | (t > t_end):
@@ -67,8 +67,8 @@ def get_Bz_function(data_directory_path, grid_params: grid.SimGridParameters):
 
         t_shifted = t - t_start
         y_shifted = y - y_start
-        t_index = int(.5 + (t_shifted / (2*np.pi*grid.DT_SIM)))
-        y_index = int(.5 + (y_shifted / (2*np.pi*grid.DY_SIM)))
+        t_index = int(.5 + (t_shifted / (2*np.pi*full_grid_params.initial_grid_params.dt_sim)))
+        y_index = int(.5 + (y_shifted / (2*np.pi*full_grid_params.initial_grid_params.dy_sim)))
 
         # Bz = +Ey
         return Et_sim_y[y_index, t_index]
@@ -77,58 +77,58 @@ def get_Bz_function(data_directory_path, grid_params: grid.SimGridParameters):
 
 
 def compute_field_at_sim_grid(input_field: laser_input.InputField, comm, rank, num_processes, verbose=False):
-    sim_grid_parameters = grid.compute_sim_grid(
+    full_grid_params = grid.compute_sim_grid(
         input_field.prop.times, input_field.prop.y_vals_output, input_field.sim_grid, input_field.laser.ref_freq
     )
 
     if verbose and rank == 0:
-        _print_parameters(sim_grid_parameters)
+        _print_parameters(full_grid_params)
 
     comm.Barrier()
 
     interp_file_to_lo_val = \
-        create_interpolation_functions(input_field, sim_grid_parameters, comm, rank, num_processes)
+        create_interpolation_functions(input_field, full_grid_params, comm, rank, num_processes)
 
     if rank == 0:
         create_Et_sim_files(
-            input_field, sim_grid_parameters.num_t_vals, sim_grid_parameters.num_y_vals
+            input_field, full_grid_params.num_t_vals, full_grid_params.num_y_vals
         )
 
     comm.Barrier()
 
     Et_sim_y = get_Et_sim_file_y(
-        input_field, sim_grid_parameters.num_t_vals, sim_grid_parameters.num_y_vals
+        input_field, full_grid_params.num_t_vals, full_grid_params.num_y_vals
     )
 
     Et_sim_z = get_Et_sim_file_z(
-        input_field, sim_grid_parameters.num_t_vals, sim_grid_parameters.num_y_vals
+        input_field, full_grid_params.num_t_vals, full_grid_params.num_y_vals
     )
 
-    t_index_lo = sim_grid_parameters.t_indexes.lo_index_sim
-    t_index_hi = sim_grid_parameters.t_indexes.hi_index_sim
+    t_index_lo = full_grid_params.t_indexes.lo_index_sim
+    t_index_hi = full_grid_params.t_indexes.hi_index_sim
 
-    y_index_lo = sim_grid_parameters.y_indexes.lo_index_sim
-    y_index_hi = sim_grid_parameters.y_indexes.hi_index_sim
-    y_index_lo_half = sim_grid_parameters.y_indexes.lo_index_sim_half
-    y_index_hi_half = sim_grid_parameters.y_indexes.hi_index_sim_half
+    y_index_lo = full_grid_params.y_indexes.lo_index_sim
+    y_index_hi = full_grid_params.y_indexes.hi_index_sim
+    y_index_lo_half = full_grid_params.y_indexes.lo_index_sim_half
+    y_index_hi_half = full_grid_params.y_indexes.hi_index_sim_half
 
     if rank == 0:
         y_start = y_index_lo
         y_start_half = y_index_lo_half
     else:
-        y_start = np.argmin(np.abs(sim_grid_parameters.sim_y_vals_code_units - interp_file_to_lo_val[rank]))
-        y_start_half = np.argmin(np.abs(sim_grid_parameters.sim_y_vals_code_units_half - interp_file_to_lo_val[rank]))
+        y_start = np.argmin(np.abs(full_grid_params.sim_y_vals_code_units - interp_file_to_lo_val[rank]))
+        y_start_half = np.argmin(np.abs(full_grid_params.sim_y_vals_code_units_half - interp_file_to_lo_val[rank]))
     if rank == num_processes - 1:
         y_end = y_index_hi + 1
         y_end_half = y_index_hi_half + 1
     else:
-        y_end = np.argmin(np.abs(sim_grid_parameters.sim_y_vals_code_units - interp_file_to_lo_val[rank + 1]))
-        y_end_half = np.argmin(np.abs(sim_grid_parameters.sim_y_vals_code_units_half - interp_file_to_lo_val[rank + 1]))
+        y_end = np.argmin(np.abs(full_grid_params.sim_y_vals_code_units - interp_file_to_lo_val[rank + 1]))
+        y_end_half = np.argmin(np.abs(full_grid_params.sim_y_vals_code_units_half - interp_file_to_lo_val[rank + 1]))
 
     y_chunk_half, t_chunk = \
         np.meshgrid(
-            sim_grid_parameters.sim_y_vals_code_units_half[y_start_half:y_end_half],
-            sim_grid_parameters.sim_times_code_units[t_index_lo:t_index_hi + 1],
+            full_grid_params.sim_y_vals_code_units_half[y_start_half:y_end_half],
+            full_grid_params.sim_times_code_units[t_index_lo:t_index_hi + 1],
             indexing='ij'
         )
 
@@ -147,8 +147,8 @@ def compute_field_at_sim_grid(input_field: laser_input.InputField, comm, rank, n
 
     y_chunk, t_chunk = \
         np.meshgrid(
-            sim_grid_parameters.sim_y_vals_code_units[y_start:y_end],
-            sim_grid_parameters.sim_times_code_units[t_index_lo:t_index_hi + 1],
+            full_grid_params.sim_y_vals_code_units[y_start:y_end],
+            full_grid_params.sim_times_code_units[t_index_lo:t_index_hi + 1],
             indexing='ij'
         )
 
@@ -167,11 +167,12 @@ def compute_field_at_sim_grid(input_field: laser_input.InputField, comm, rank, n
     comm.Barrier()
 
 
-def create_interpolation_functions(input_field: laser_input.InputField, sim_grid_parameters, comm, rank, num_processes):
+def create_interpolation_functions(input_field: laser_input.InputField, full_grid_params: grid.FullSimGridParameters,
+                                   comm, rank, num_processes):
     if input_field.laser.normalize_to_a0:
         normalize_to_a0(input_field, comm, rank, num_processes)
     else:
-        normalize_to_energy(input_field, comm, rank, num_processes, sim_grid_parameters)
+        normalize_to_energy(input_field, comm, rank, num_processes, full_grid_params)
 
     comm.Barrier()
 
@@ -181,8 +182,8 @@ def create_interpolation_functions(input_field: laser_input.InputField, sim_grid
     Ey_chunk = Ey_file[start_index:end_index]
     Ez_chunk = Ez_file[start_index:end_index]
     E_mag = np.sqrt(np.abs(Ey_chunk) ** 2 + np.abs(Ez_chunk) ** 2)
-    dy = sim_grid_parameters.output_y_vals_code_units[1] - sim_grid_parameters.output_y_vals_code_units[0]
-    dt = sim_grid_parameters.output_times_code_units[1] - sim_grid_parameters.output_times_code_units[0]
+    dy = full_grid_params.output_y_vals_code_units[1] - full_grid_params.output_y_vals_code_units[0]
+    dt = full_grid_params.output_times_code_units[1] - full_grid_params.output_times_code_units[0]
     total_sum = _get_total_energy(E_mag, comm, rank, num_processes, dy, dt)
     max_a0 = _get_max_val(E_mag, comm, rank, num_processes)
     if rank == 0:
@@ -197,11 +198,11 @@ def create_interpolation_functions(input_field: laser_input.InputField, sim_grid
     comm.Barrier()
 
     # Only need to interpolate up to dimensions of Simulation
-    t_index_lo = sim_grid_parameters.t_indexes.lo_index_output
-    t_index_hi = sim_grid_parameters.t_indexes.hi_index_output
+    t_index_lo = full_grid_params.t_indexes.lo_index_output
+    t_index_hi = full_grid_params.t_indexes.hi_index_output
 
-    y_index_lo = sim_grid_parameters.y_indexes.lo_index_output
-    y_index_hi = sim_grid_parameters.y_indexes.hi_index_output
+    y_index_lo = full_grid_params.y_indexes.lo_index_output
+    y_index_hi = full_grid_params.y_indexes.hi_index_output
 
     chunk_size, start_index, end_index = get_chunk_info(y_index_hi - y_index_lo + 1, rank, num_processes)
     start_index += y_index_lo
@@ -216,20 +217,20 @@ def create_interpolation_functions(input_field: laser_input.InputField, sim_grid
     else:
         start_index = 0
 
-    if end_index != len(sim_grid_parameters.output_y_vals_code_units):
+    if end_index != len(full_grid_params.output_y_vals_code_units):
         end_index += 5
 
-    y_0_val = sim_grid_parameters.center_y_code_units
-    t_0_val = sim_grid_parameters.laser_time_start_code_units
+    y_0_val = full_grid_params.center_y_code_units
+    t_0_val = full_grid_params.laser_time_start_code_units
 
     interp_file_to_lo_val = np.zeros((num_processes))
     for i in range(num_processes):
         _, start_index_curr, _ = get_chunk_info(y_index_hi - y_index_lo + 1, i, num_processes)
-        interp_file_to_lo_val[i] = sim_grid_parameters.output_y_vals_code_units[start_index_curr + y_index_lo] + y_0_val
+        interp_file_to_lo_val[i] = full_grid_params.output_y_vals_code_units[start_index_curr + y_index_lo] + y_0_val
 
     points = (
-        sim_grid_parameters.output_y_vals_code_units[start_index:end_index] + y_0_val,
-        sim_grid_parameters.output_times_code_units[t_index_lo:t_index_hi + 1] + t_0_val
+        full_grid_params.output_y_vals_code_units[start_index:end_index] + y_0_val,
+        full_grid_params.output_times_code_units[t_index_lo:t_index_hi + 1] + t_0_val
     )
 
     Et_chunk_y = Et_file_y[start_index:end_index, t_index_lo:t_index_hi + 1]
@@ -319,7 +320,7 @@ def normalize_to_a0(input_field: laser_input.InputField, comm, rank, num_process
     del Ez_file
 
 
-def normalize_to_energy(input_field: laser_input.InputField, comm, rank, num_processes, sim_grid_parameters):
+def normalize_to_energy(input_field: laser_input.InputField, comm, rank, num_processes, full_grid_params: grid.FullSimGridParameters):
     chunk_size, start_index, end_index = get_chunk_info(len(input_field.prop.y_vals_output), rank, num_processes)
 
     Ey_file = input_field.get_output_Et_field_file_y_2d()
@@ -330,8 +331,8 @@ def normalize_to_energy(input_field: laser_input.InputField, comm, rank, num_pro
 
     E_mag = np.sqrt(np.abs(Ey_chunk) ** 2 + np.abs(Ez_chunk) ** 2)
 
-    dy = sim_grid_parameters.output_y_vals_code_units[1] - sim_grid_parameters.output_y_vals_code_units[0]
-    dt = sim_grid_parameters.output_times_code_units[1] - sim_grid_parameters.output_times_code_units[0]
+    dy = full_grid_params.output_y_vals_code_units[1] - full_grid_params.output_y_vals_code_units[0]
+    dt = full_grid_params.output_times_code_units[1] - full_grid_params.output_times_code_units[0]
 
     total_sum = _get_total_energy(E_mag, comm, rank, num_processes, dy, dt)
     if rank == 0:
@@ -440,19 +441,19 @@ def get_chunk_info(total_size, rank, num_processes):
     return chunk_size, start_index, end_index
 
 
-def _print_parameters(sim_grid_parameters):
+def _print_parameters(full_grid_params: grid.FullSimGridParameters):
     print("#### Sim Resolution ####")
-    print("DTime:", sim_grid_parameters.sim_times_fs[1] - sim_grid_parameters.sim_times_fs[0], "fs")
-    print("DY:", sim_grid_parameters.sim_y_vals_um[1] - sim_grid_parameters.sim_y_vals_um[0], "um")
+    print("DTime:", full_grid_params.sim_times_fs[1] - full_grid_params.sim_times_fs[0], "fs")
+    print("DY:", full_grid_params.sim_y_vals_um[1] - full_grid_params.sim_y_vals_um[0], "um")
 
     print("#### Sim Bounds Code Units ####")
-    print("Time:", sim_grid_parameters.sim_times_code_units.max())
-    print("Y:", sim_grid_parameters.sim_y_vals_code_units.max())
+    print("Time:", full_grid_params.sim_times_code_units.max())
+    print("Y:", full_grid_params.sim_y_vals_code_units.max())
 
     print("#### Sim Field Bounds Code Units ####")
-    t_indexes = sim_grid_parameters.t_indexes
-    y_indexes = sim_grid_parameters.y_indexes
-    print("Time:", sim_grid_parameters.sim_times_code_units[t_indexes.lo_index_sim],
-          sim_grid_parameters.sim_times_code_units[t_indexes.hi_index_sim])
-    print("Y:", sim_grid_parameters.sim_y_vals_code_units[y_indexes.lo_index_sim],
-          sim_grid_parameters.sim_y_vals_code_units[y_indexes.hi_index_sim])
+    t_indexes = full_grid_params.t_indexes
+    y_indexes = full_grid_params.y_indexes
+    print("Time:", full_grid_params.sim_times_code_units[t_indexes.lo_index_sim],
+          full_grid_params.sim_times_code_units[t_indexes.hi_index_sim])
+    print("Y:", full_grid_params.sim_y_vals_code_units[y_indexes.lo_index_sim],
+          full_grid_params.sim_y_vals_code_units[y_indexes.hi_index_sim])

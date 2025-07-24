@@ -6,11 +6,11 @@ from fourier_prop.laser_input import utils
 from fourier_prop.read_laser import sim_grid_parameters as grid
 from fourier_prop.read_laser import read_laser
 from configs import load_config
+import os
 
-try:
-    config_path  # pass in as a CLI parameter
-except NameError:
-    raise Exception("No ALFP config path provided")
+config_path = os.environ.get("ALFP_CONFIG")
+if not config_path:
+    raise Exception("ALFP_CONFIG environment variable not set!")
 
 alfp_config = load_config.load_config(config_path)
 ref_freq = alfp_config["laser"].ref_freq
@@ -35,7 +35,7 @@ Tsim = fs_to_norm_units(grid_params.t_length)
 
 dt = t0 * grid_params.dt_sim
 
-sim_grid_parameters = grid.compute_sim_grid(
+full_grid_params = grid.compute_sim_grid(
     prop.times,
     prop.y_vals_output,
     prop.z_vals_output,
@@ -43,8 +43,8 @@ sim_grid_parameters = grid.compute_sim_grid(
     ref_freq
 )
 
-by_func = read_laser.get_By_function(prop.data_directory_path, sim_grid_parameters)
-bz_func = read_laser.get_Bz_function(prop.data_directory_path, sim_grid_parameters)
+by_func = read_laser.get_By_function(prop.data_directory_path, full_grid_params)
+bz_func = read_laser.get_Bz_function(prop.data_directory_path, full_grid_params)
 
 Main(
     geometry="3Dcartesian",

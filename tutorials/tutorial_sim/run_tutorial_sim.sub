@@ -1,7 +1,5 @@
 #!/bin/bash
 
-PATH_TO_CONFIG = "./${CONFIG_NAME}"
-
 #SBATCH --job-name=TutorialSim      ## Name of the job.
 #SBATCH -A USER          ## account to charge
 #SBATCH -p PARTITION          ## partition/queue name
@@ -15,6 +13,7 @@ PATH_TO_CONFIG = "./${CONFIG_NAME}"
 #SBATCH --mail-user=EMAIL
 
 export PYTHONPATH=../../
+export ALFP_CONFIG = "./path/to/your_config.py"
 
 echo "Loading modules..."
 module load gcc
@@ -24,11 +23,11 @@ module load python/3.10.2
 echo
 
 echo "Making laser e-field..."
-mpirun -np $SLURM_NTASKS python ../../generate_laser.py "${PATH_TO_CONFIG}" > laser_outfile.out
+mpirun -np $SLURM_NTASKS python ../../generate_laser.py "${ALFP_CONFIG}" > laser_outfile.out
 echo
 
 echo "Running smilei sim..."
-mpirun -np $SLURM_NTASKS /PATH/TO/Smilei/smilei "config_path=${PATH_TO_CONFIG}" laser_only_sim.py > outfile.out
+mpirun -np $SLURM_NTASKS /PATH/TO/Smilei/smilei laser_only_sim.py > outfile.out
 echo
 
 sh prep_file_for_happi.sh

@@ -1,6 +1,7 @@
 from fourier_prop.laser_input import utils
 import numpy as np
 from dataclasses import dataclass
+from configs import structs
 
 INTERP_Y_PREFIX = 'laser_vals_y_'
 INTERP_Z_PREFIX = 'laser_vals_z_'
@@ -15,7 +16,7 @@ class Indexes:
     hi_index_output: int
 
 @dataclass
-class SimGridParameters:
+class FullSimGridParameters:
     num_t_vals: int
     num_y_vals: int
     num_z_vals: int
@@ -38,19 +39,20 @@ class SimGridParameters:
     laser_time_start_code_units: float
     center_y_code_units: float
     center_z_code_units: float
+    initial_grid_params: structs.SimulationGridParameters
 
-def compute_sim_grid(times, y_vals_output, z_vals_output, grid_params, ref_freq):
-    num_wavelengths_y = utils.microns_to_norm_units(grid_params.y_height, ref_freq) / (2*np.pi)
-    num_wavelengths_z = utils.microns_to_norm_units(grid_params.z_height, ref_freq) / (2*np.pi)
-    num_periods = utils.fs_to_norm_units(grid_params.t_length, ref_freq) / (2*np.pi)
+def compute_sim_grid(times, y_vals_output, z_vals_output, initial_grid_params: structs.SimulationGridParameters, ref_freq):
+    num_wavelengths_y = utils.microns_to_norm_units(initial_grid_params.y_height, ref_freq) / (2*np.pi)
+    num_wavelengths_z = utils.microns_to_norm_units(initial_grid_params.z_height, ref_freq) / (2*np.pi)
+    num_periods = utils.fs_to_norm_units(initial_grid_params.t_length, ref_freq) / (2*np.pi)
 
     output_time_vals_code_units = utils.fs_to_norm_units(times, ref_freq)
     output_y_vals_code_units = utils.microns_to_norm_units(y_vals_output, ref_freq)
     output_z_vals_code_units = utils.microns_to_norm_units(z_vals_output, ref_freq)
 
-    cell_height_y = (2*np.pi) * grid_params.dy_sim
-    cell_height_z = (2*np.pi) * grid_params.dz_sim
-    cell_length = (2*np.pi) * grid_params.dt_sim
+    cell_height_y = (2*np.pi) * initial_grid_params.dy_sim
+    cell_height_z = (2*np.pi) * initial_grid_params.dz_sim
+    cell_length = (2*np.pi) * initial_grid_params.dt_sim
 
     y_length_code_units = num_wavelengths_y * 2*np.pi
     y_vals_sim = np.arange(-2 * cell_height_y, y_length_code_units + 3*cell_height_y, cell_height_y)
@@ -71,9 +73,9 @@ def compute_sim_grid(times, y_vals_output, z_vals_output, grid_params, ref_freq)
 
     t_vals_sim_fs = utils.norm_units_to_fs(t_vals_sim, ref_freq)
 
-    laser_time_start = utils.fs_to_norm_units(grid_params.laser_start_time, ref_freq)
-    center_y = utils.microns_to_norm_units(grid_params.y_height / 2.0, ref_freq)
-    center_z = utils.microns_to_norm_units(grid_params.z_height / 2.0, ref_freq)
+    laser_time_start = utils.fs_to_norm_units(initial_grid_params.laser_start_time, ref_freq)
+    center_y = utils.microns_to_norm_units(initial_grid_params.y_height / 2.0, ref_freq)
+    center_z = utils.microns_to_norm_units(initial_grid_params.z_height / 2.0, ref_freq)
 
     t_lo_index_output, t_hi_index_output = _get_output_indices_for_smaller_grid(
         laser_time_start,
@@ -135,7 +137,7 @@ def compute_sim_grid(times, y_vals_output, z_vals_output, grid_params, ref_freq)
 
     #print("NUM Y VALS AND NUM_Y_HALF:", num_y_vals, num_y_vals_half)
 
-    return SimGridParameters(
+    return FullSimGridParameters(
         num_t_vals=num_t_vals, num_y_vals=num_y_vals, num_z_vals=num_z_vals,
 
         t_indexes=t_indexes, y_indexes=y_indexes, z_indexes=z_indexes,
@@ -149,7 +151,8 @@ def compute_sim_grid(times, y_vals_output, z_vals_output, grid_params, ref_freq)
         sim_times_fs=t_vals_sim_fs, sim_y_vals_um=y_vals_sim_um, sim_z_vals_um=z_vals_sim_um,
         sim_y_vals_um_half=y_vals_sim_um_half, sim_z_vals_um_half=z_vals_sim_um_half,
 
-        laser_time_start_code_units=laser_time_start, center_y_code_units=center_y, center_z_code_units=center_z
+        laser_time_start_code_units=laser_time_start, center_y_code_units=center_y, center_z_code_units=center_z,
+        initial_grid_params=initial_grid_params
     )
 
 
