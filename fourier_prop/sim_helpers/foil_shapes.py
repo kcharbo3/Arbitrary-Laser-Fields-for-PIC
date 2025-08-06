@@ -1,5 +1,49 @@
 import numpy as np
 
+def get_foils(n0, left_x, foil_radius, thickness, centery, centerz,
+              pre_plasma=False, pre_plasma_char_length=0, cutoff_density=0):
+
+    def foils(x, y, z):
+        num_foils = len(n0)
+        density = 0
+        for i in range(num_foils):
+            density += single_foil(x, y, z, n0[i], left_x[i], foil_radius[i], thickness[i], centery[i], centerz[i],
+                                   pre_plasma=pre_plasma, pre_plasma_char_length=pre_plasma_char_length,
+                                   cutoff_density=cutoff_density)
+        return density
+
+    return foils
+
+
+def single_foil(x, y, z, n0, left_x, foil_radius, thickness, centery, centerz,
+             pre_plasma=False, pre_plasma_char_length=0, cutoff_density=0):
+    if not pre_plasma:
+        if x < left_x or x > left_x + thickness:
+            return 0
+        r = np.sqrt((y - centery)**2 + (z - centerz)**2)
+        if r < foil_radius:
+            return n0
+        return 0
+    else:
+        # To the right of the foil
+        if x > left_x + thickness:
+            return 0
+
+        # On foil
+        r = np.sqrt((y - centery)**2 + (z - centerz)**2)
+        if x >= left_x and r < foil_radius:
+            return n0
+
+        # To the left of the foil
+        if x < left_x and r < foil_radius:
+            distance_away = left_x - x
+            density_val = n0 * np.exp(-distance_away / pre_plasma_char_length)
+            if density_val < cutoff_density:
+                return 0
+            else:
+                return density_val
+
+        return 0
 
 def circular_foil(n0, left_x, foil_radius, thickness, centery, centerz,
                   pre_plasma=False, pre_plasma_char_length=0, cutoff_density=0):

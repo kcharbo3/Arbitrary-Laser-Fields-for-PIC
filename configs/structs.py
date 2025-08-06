@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import numpy as np
 from typing import List
 
@@ -93,10 +93,13 @@ class PrePlasmaParameters:
 
 @dataclass
 class SimParameters:
-    foil_left_x: float = 0.0
-    foil_radius: float = 0.0
-    foil_thickness: float = 0.0
-    foil_angle: float = 0.0
+    n0: np.ndarray = np.array([])
+    foil_left_x: np.ndarray = np.array([])
+    foil_radius: np.ndarray = np.array([])
+    foil_thickness: np.ndarray = np.array([])
+    centery: np.ndarray = np.array([])
+    centerz: np.ndarray = np.array([])
+    foil_angle: np.ndarray = np.array([])
     pre_plasma_params: PrePlasmaParameters = PrePlasmaParameters()
 
 
@@ -170,10 +173,10 @@ def get_pre_plasma_params(pre_plasma, char_length, cut_off_density):
 
     return pre_plasma_params
 
-def get_other_sim_params(foil_left_x, foil_radius, foil_thickness, foil_angle, pre_plasma_params):
+def get_other_sim_params(n0, foil_left_x, foil_radius, foil_thickness, centery, centerz, foil_angle, pre_plasma_params):
     sim_params = SimParameters(
-        foil_left_x=foil_left_x, foil_radius=foil_radius, foil_thickness=foil_thickness,
-        foil_angle=foil_angle, pre_plasma_params=pre_plasma_params
+        n0=n0, foil_left_x=foil_left_x, foil_radius=foil_radius, foil_thickness=foil_thickness,
+        centery=centery, centerz=centerz, foil_angle=foil_angle, pre_plasma_params=pre_plasma_params
     )
 
     return sim_params

@@ -85,9 +85,9 @@ ECHELON_DELAY = 0
 
 # ------------ Simulation Grid Parameters ---------------
 # In microns
-Y_HEIGHT = 28
+Y_HEIGHT = 28  # Don't forget to update CENTERY
 DY_SIM = 1 / 16.
-Z_HEIGHT = 28
+Z_HEIGHT = 28  # Don't forget to update CENTERZ
 DZ_SIM = 1 / 16.
 T_LENGTH = 250.
 DT_SIM = DY_SIM * (0.95 / np.sqrt(3.))  # To satisfy CFL condition
@@ -99,12 +99,16 @@ DX_SIM = 1 / 16.
 LASER_TIME_START = 50.  # fs
 
 # ------------ Other Simulation Parameters ---------------
-FOIL_LEFT_X = 8.5
-FOIL_RADIUS = 50
-FOIL_THICKNESS = 0.8
+# These are all lists to support multiple foils. They should all be of the same size.
+N0 = np.array([30.])
+FOIL_LEFT_X = np.array([8.5])
+FOIL_RADIUS = np.array([50])
+FOIL_THICKNESS = np.array([0.8])
+CENTERY = np.array([Y_HEIGHT / 2.])
+CENTERZ = np.array([Z_HEIGHT / 2.])
 
 # Only used for certain foil shape functions
-FOIL_ANGLE = 0
+FOIL_ANGLE = np.array([0])
 
 # Only used for certain foil shape functions
 PRE_PLASMA = False

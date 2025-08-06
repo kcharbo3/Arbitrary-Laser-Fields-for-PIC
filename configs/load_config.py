@@ -43,7 +43,8 @@ def load_config(config_path):
     PRE_PLASMA_PARAMS = structs.get_pre_plasma_params(module.PRE_PLASMA, module.CHAR_LENGTH, module.CUT_OFF_DENSITY)
 
     other_sim_parameters_obj = structs.SimParameters(
-        module.FOIL_LEFT_X, module.FOIL_RADIUS, module.FOIL_THICKNESS, module.FOIL_ANGLE, PRE_PLASMA_PARAMS
+        module.N0, module.FOIL_LEFT_X, module.FOIL_RADIUS, module.FOIL_THICKNESS, module.CENTERY, module.CENTERZ,
+        module.FOIL_ANGLE, PRE_PLASMA_PARAMS
     )
 
     return {
