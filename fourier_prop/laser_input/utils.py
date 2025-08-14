@@ -71,18 +71,6 @@ def compute_thick_lens_focus(n, R1, R2, d):
     f_inv = (n - 1) * (R1_inv - R2_inv + ((n - 1) * d) / (n * R1 * R2 if R1 != np.inf and R2 != np.inf else np.inf))
     return 1 / f_inv
 
-
-def thick_lens_phase(y, z, k_vals, R1, R2, n, center_thickness):
-    r2 = y**2 + z**2
-    sag1 = R1 - np.sqrt(np.maximum(R1**2 - r2, 0.0))
-    sag2 = 0
-    if R2 != np.inf:
-        sag2 = -R2 + np.sqrt(np.maximum(R2**2 - r2, 0.0))
-    opd = (n - 1) * (sag1 + sag2)
-    material_phase = np.exp(1j * k_vals * center_thickness) * np.exp(1j * k_vals * (n - 1) * center_thickness)
-    return np.exp(-1j * k_vals * opd).astype(np.complex64) * material_phase
-
-
 def thick_lens_phase(y, z, R1, R2, n, center_thickness):
     r2 = y**2 + z**2
     sag1 = R1 - np.sqrt(np.maximum(R1**2 - r2, 0.0))
