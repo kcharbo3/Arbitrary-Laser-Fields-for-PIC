@@ -65,11 +65,19 @@ class GratingParameters:
     grating_separations: List[float]
 
 @dataclass
+class ThickLens:
+    use_thick_lens: bool
+    r1_lens: float
+    r2_lens: float
+    lens_center_thickness: float
+
+@dataclass
 class AdvancedParameters:
     center_peak_E_at_0: bool
     grating_params: GratingParameters
     axicon_angle: float
     echelon_delay: float
+    thick_lens: ThickLens
 
 # ------------ Simulation Grid Parameters ---------------
 @dataclass
@@ -146,12 +154,24 @@ def get_grating_params(use_grating_eq, alpha, grating_aois, groove_periods, diff
 
     return grating_params
 
-def get_advanced_params(center_peak_E_at_0, grating_params, axicon_angle, echelon_delay):
+def get_thick_lens_params(use_thick_lens, r1_lens, r2_lens, lens_center_thickness):
+    thick_lens = ThickLens(
+        use_thick_lens=use_thick_lens,
+        r1_lens=r1_lens,
+        r2_lens=r2_lens,
+        lens_center_thickness=lens_center_thickness
+    )
+
+    return thick_lens
+
+def get_advanced_params(center_peak_E_at_0, grating_params,
+                        axicon_angle, echelon_delay, thick_lens):
     advanced_parameters_obj = AdvancedParameters(
         center_peak_E_at_0=center_peak_E_at_0,
         grating_params=grating_params,
         axicon_angle=axicon_angle,
-        echelon_delay=echelon_delay
+        echelon_delay=echelon_delay,
+        thick_lens=thick_lens
     )
 
     return advanced_parameters_obj

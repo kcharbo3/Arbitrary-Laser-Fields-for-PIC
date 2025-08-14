@@ -1,5 +1,6 @@
 import fourier_prop.laser_input.input_laser_field as laser_input
 import fourier_prop.laser_input.constants as constants
+import fourier_prop.laser_input.utils as utils
 import numpy as np
 
 def generate_output_Ew_field(input_field: laser_input.InputField, comm=None, rank=0, num_processes=1):
@@ -266,10 +267,7 @@ def _propagate_frequencies_low_mem(input_field: laser_input.InputField, omega_in
             wvl = (2 * np.pi * constants.C_UM_FS) / input_field.laser.omega0
             k_val = input_field.laser.omega0 / constants.C_UM_FS
 
-        if input_field.prop.propagation_type == constants.FRESNEL:
-            lens = (input_field.Y_INPUT ** 2 + input_field.Z_INPUT ** 2) / (2*input_field.focus)
-        else:
-            lens = np.sqrt(input_field.Y_INPUT ** 2 + input_field.Z_INPUT ** 2 + input_field.focus ** 2)
+        lens = get_lens_phase(input_field, input_field.Y_INPUT, input_field.Z_INPUT, wvl)
         Tx = np.array(np.exp(-1j * k_val * lens), dtype=np.complex64)
         eField_lens = np.multiply(eField_input, Tx)
         prop_distance = input_field.laser.output_distance_from_focus + input_field.focus
@@ -342,10 +340,7 @@ def _propagate_frequencies_low_mem_2d(input_field: laser_input.InputField, omega
             wvl = (2 * np.pi * constants.C_UM_FS) / input_field.laser.omega0
             k_val = input_field.laser.omega0 / constants.C_UM_FS
 
-        if input_field.prop.propagation_type == constants.FRESNEL:
-            lens = (input_field.Y_INPUT ** 2) / (2*input_field.focus)
-        else:
-            lens = np.sqrt(input_field.Y_INPUT ** 2 + input_field.focus ** 2)
+        lens = get_lens_phase(input_field, input_field.Y_INPUT, np.zeros_like(input_field.Y_INPUT), wvl)
         Tx = np.array(np.exp(-1j * k_val * lens), dtype=np.complex64)
         eField_lens = np.multiply(eField_input, Tx)
         prop_distance = input_field.laser.output_distance_from_focus + input_field.focus
@@ -382,7 +377,6 @@ def _propagate_frequencies_low_mem_2d(input_field: laser_input.InputField, omega
                                           * np.exp(-1j * k_val * (prop_distance - input_field.focus)) \
                                           * np.exp(-1j * k_val * R_output)
 
-
 # TODO: add support for vectorizing omega
 def _propagate_frequencies(input_field: laser_input.InputField, omega_indexes, Ew_output, is_Ey):
     omega_vals = input_field.prop.omegas[omega_indexes]
@@ -410,10 +404,7 @@ def _propagate_frequencies(input_field: laser_input.InputField, omega_indexes, E
         else:
             eField_input = input_field.input_Ew_field_z[omega_indexes]
 
-    if input_field.prop.propagation_type == constants.FRESNEL:
-        lens = (Y_INPUT ** 2 + Z_INPUT ** 2) / (2*input_field.focus)
-    else:
-        lens = np.sqrt(Y_INPUT ** 2 + Z_INPUT ** 2 + input_field.focus ** 2)
+    lens = get_lens_phase(input_field, Y_INPUT, Z_INPUT, wvls)
     Tx = np.array(np.exp(-1j * K_VALS_INPUT * lens), dtype=np.complex64)
     eField_lens = np.multiply(eField_input, Tx)
     prop_distance = input_field.laser.output_distance_from_focus + input_field.focus
@@ -483,10 +474,7 @@ def _propagate_frequencies_2d(input_field: laser_input.InputField, omega_indexes
         else:
             eField_input = input_field.input_Ew_field_z[omega_indexes]
 
-    if input_field.prop.propagation_type == constants.FRESNEL:
-        lens = (Y_INPUT ** 2) / (2*input_field.focus)
-    else:
-        lens = np.sqrt(Y_INPUT ** 2 + input_field.focus ** 2)
+    lens = get_lens_phase(input_field, Y_INPUT, np.zeros_like(Y_INPUT), wvls)
     Tx = np.array(np.exp(-1j * K_VALS_INPUT * lens), dtype=np.complex64)
     eField_lens = np.multiply(eField_input, Tx)
     prop_distance = input_field.laser.output_distance_from_focus + input_field.focus
@@ -550,6 +538,27 @@ def get_Ex_output(input_field: laser_input.InputField):
     ex_w = np.fft.fftshift(np.fft.ifft2(np.fft.ifftshift(ex_kspace)))
     ex_t = np.fft.ifftshift(np.fft.ifft(np.fft.fftshift(ex_w), axis=0))
     return ex_t
+
+def get_lens_phase(input_field, y_input, z_input, wvls):
+    if input_field.prop.propagation_type == constants.FRESNEL:
+        lens = (y_input ** 2 + z_input ** 2) / (2*input_field.focus)
+    else:
+        lens = np.sqrt(y_input ** 2 + z_input ** 2 + input_field.focus ** 2)
+
+    if input_field.advanced.thick_lens.use_thick_lens:
+        lens_index = utils.n_fused_silica(wvls)
+        if y_input.ndim == 3:
+            lens_index = lens_index[:, np.newaxis, np.newaxis]
+
+        lens = utils.thick_lens_phase(
+            y_input, z_input,
+            R1=input_field.advanced.thick_lens.r1_lens,
+            R2=input_field.advanced.thick_lens.r2_lens,
+            n=lens_index,
+            center_thickness=input_field.advanced.thick_lens.lens_center_thickness
+        )
+
+    return lens
 
 def _next_pow2(x):
     y = np.ceil(np.log2(x))

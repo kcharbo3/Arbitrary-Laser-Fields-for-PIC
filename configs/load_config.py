@@ -31,8 +31,12 @@ def load_config(config_path):
         module.DIFFRACTION_ORDER, module.GRATING_SEPARATION
     )
 
+    THICK_LENS = structs.get_thick_lens_params(
+        module.USE_THICK_LENS, module.R1_LENS, module.R2_LENS, module.LENS_CENTER_THICKNESS
+    )
+
     advanced_parameters_obj = structs.get_advanced_params(
-        module.CENTER_PEAK_EFIELD_AT_0, GRATING_PARAMS, module.AXICON_ANGLE, module.ECHELON_DELAY
+        module.CENTER_PEAK_EFIELD_AT_0, GRATING_PARAMS, module.AXICON_ANGLE, module.ECHELON_DELAY, THICK_LENS
     )
 
     sim_grid_parameters_obj = structs.get_sim_grid_params(

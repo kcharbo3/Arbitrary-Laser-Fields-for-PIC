@@ -57,9 +57,16 @@ class InputField:
 
         self.delta_omega = utils.get_delta_omega_from_fwhm(self.laser.pulse_fwhm)  # rad / PHz
 
-        self.focus = utils.get_focus_from_waist_in(
-            self.laser.wavelength, self.laser.spot_size, self.laser.waist_in
-        )
+        if self.advanced.thick_lens.use_thick_lens == True:
+            self.focus = utils.compute_thick_lens_focus(
+                utils.n_fused_silica(self.laser.wavelength),
+                self.advanced.thick_lens.r1_lens, self.advanced.thick_lens.r2_lens,
+                self.advanced.thick_lens.lens_center_thickness
+            )
+        else:
+            self.focus = utils.get_focus_from_waist_in(
+                self.laser.wavelength, self.laser.spot_size, self.laser.waist_in
+            )
 
         self.shape_params = field_shape_functions.ShapeParameters(
             waist_in=self.laser.waist_in, deltax=self.laser.deltax, l=self.laser.l,

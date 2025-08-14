@@ -61,6 +61,51 @@ def get_betaba(beta):
     return np.sqrt(1 + beta**2)
 
 
+def compute_thick_lens_focus(n, R1, R2, d):
+    if R1 == np.inf: R1_inv = 0
+    else: R1_inv = 1 / R1
+
+    if R2 == np.inf: R2_inv = 0
+    else: R2_inv = 1 / R2
+
+    f_inv = (n - 1) * (R1_inv - R2_inv + ((n - 1) * d) / (n * R1 * R2 if R1 != np.inf and R2 != np.inf else np.inf))
+    return 1 / f_inv
+
+
+def thick_lens_phase(y, z, k_vals, R1, R2, n, center_thickness):
+    r2 = y**2 + z**2
+    sag1 = R1 - np.sqrt(np.maximum(R1**2 - r2, 0.0))
+    sag2 = 0
+    if R2 != np.inf:
+        sag2 = -R2 + np.sqrt(np.maximum(R2**2 - r2, 0.0))
+    opd = (n - 1) * (sag1 + sag2)
+    material_phase = np.exp(1j * k_vals * center_thickness) * np.exp(1j * k_vals * (n - 1) * center_thickness)
+    return np.exp(-1j * k_vals * opd).astype(np.complex64) * material_phase
+
+
+def thick_lens_phase(y, z, R1, R2, n, center_thickness):
+    r2 = y**2 + z**2
+    sag1 = R1 - np.sqrt(np.maximum(R1**2 - r2, 0.0))
+    sag2 = 0
+    if R2 != np.inf:
+        sag2 = -R2 + np.sqrt(np.maximum(R2**2 - r2, 0.0))
+    opd = (n - 1) * (sag1 + sag2)
+    return opd - center_thickness - ((n - 1) * center_thickness)
+
+
+def n_fused_silica(wavelength_um):
+    B = [0.6961663, 0.4079426, 0.8974794]
+    C = [0.0684043**2, 0.1162414**2, 9.896161**2]
+    lam2 = np.clip(wavelength_um**2, 0.21**2, 3.71**2)
+    n2 = 1
+    for Bi, Ci in zip(B, C):
+        denom = lam2 - Ci
+        denom = np.where(denom == 0, np.nan, denom)
+        n2 += Bi * lam2 / denom
+
+    return np.sqrt(n2)
+
+
 class SingleThreadComm:
     def Barrier(self):
         return

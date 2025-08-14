@@ -83,6 +83,12 @@ DIFFRACTION_ORDER = [1]
 AXICON_ANGLE = 0
 ECHELON_DELAY = 0
 
+# Thick lens focusing
+USE_THICK_LENS = False
+R1_LENS = 200e6
+R2_LENS = np.inf
+LENS_CENTER_THICKNESS = 2e3
+
 # ------------ Simulation Grid Parameters ---------------
 # In microns
 Y_HEIGHT = 28  # Don't forget to update CENTERY
