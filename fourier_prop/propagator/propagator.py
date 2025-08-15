@@ -547,7 +547,9 @@ def get_lens_phase(input_field, y_input, z_input, wvls):
 
     if input_field.advanced.thick_lens.use_thick_lens:
         lens_index = utils.n_fused_silica(wvls)
-        if y_input.ndim == 3:
+        if y_input.ndim == 2:
+            lens_index = lens_index[:, np.newaxis]
+        elif y_input.ndim == 3:
             lens_index = lens_index[:, np.newaxis, np.newaxis]
 
         lens = utils.thick_lens_phase(
